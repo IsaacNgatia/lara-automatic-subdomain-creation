@@ -65,5 +65,4 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 # ispkenya-billing
-# ispkenya-billing
-# ispkenya-billing
+# lara-automatic-subdomain-creation

@@ -215,5 +215,12 @@ export default defineConfig({
         chunkSizeWarningLimit: 1600,
         outDir: "public/build",
         emptyOutDir: true,
+        // Optimize for production
+        minify: "esbuild",
+        rollupOptions: {
+            maxParallelFileOps: 2,
+        },
     },
+    // Use a dynamic base URL that works with subdomains
+    base: '/build/',
 });

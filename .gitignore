@@ -18,5 +18,3 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
-/prod.zip
-/laravel.zip
