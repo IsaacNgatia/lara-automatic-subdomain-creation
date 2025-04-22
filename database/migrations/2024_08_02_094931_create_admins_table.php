@@ -39,7 +39,8 @@ return new class extends Migration {
             $table->integer('last_activity')->index();
         });
         DB::table('admins')->insert([
-            ['username' => 'Ispkenya Developer', 'email' => 'admin@ispkenya.co.ke', 'password' => '$2y$12$e5jUm.4Kkvz8T.PRLuFFnOiRt.kAnhTHF7bu7tOIXsUz/7n1YECRa', 'role_id' => '1', 'phone_number' => '0790008915', 'email_verified_at' => null, 'profile_photo_path' => null, 'remember_token' => null, 'created_at' => now(env('TIME_ZONE')), 'updated_at' => now(env('TIME_ZONE'))],
+            ['username' => 'Ispkenya Developer', 'email' => 'developer@ispkenya.co.ke', 'password' => '$2y$12$e5jUm.4Kkvz8T.PRLuFFnOiRt.kAnhTHF7bu7tOIXsUz/7n1YECRa', 'role_id' => '1', 'phone_number' => '0790008915', 'email_verified_at' => null, 'profile_photo_path' => null, 'remember_token' => null, 'created_at' => now(env('TIME_ZONE')), 'updated_at' => now(env('TIME_ZONE'))],
+            ['username' => 'Ispkenya Admin', 'email' => 'admin@ispkenya.co.ke', 'password' => '$2y$12$e5jUm.4Kkvz8T.PRLuFFnOiRt.kAnhTHF7bu7tOIXsUz/7n1YECRa', 'role_id' => '2', 'phone_number' => '0712345678', 'email_verified_at' => null, 'profile_photo_path' => null, 'remember_token' => null, 'created_at' => now(env('TIME_ZONE')), 'updated_at' => now(env('TIME_ZONE'))],
         ]);
     }
 

@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('password')->nullable();
-            $table->integer('time_limit');
-            $table->integer('data_limit')->nullable();
+            $table->bigInteger('time_limit');
+            $table->bigInteger('data_limit')->nullable();
             $table->foreignId('epay_package_id')->constrained();
             $table->integer('price');
             $table->boolean('is_sold')->default(false);

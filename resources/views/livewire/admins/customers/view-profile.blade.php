@@ -29,14 +29,19 @@
                                     <i class="bi bi-chat-dots me-1 align-middle inline-block"></i>Tickets
                                 </a>
                                 <a class="w-full sm:w-auto flex hs-tab-active:font-semibold  hs-tab-active:text-white hs-tab-active:bg-primary rounded-md  py-2 px-4 text-primary text-sm"
-                                    href="javascript:void(0);" id="accounts-tab" data-hs-tab="#accounts-tab-pane"
-                                    aria-controls="accounts-tab-pane">
-                                    <i class="bi bi-user me-1 align-middle inline-block"></i>Related Accounts
+                                    href="javascript:void(0);" id="smart_olt-tab" data-hs-tab="#smart_olt-tab-pane"
+                                    aria-controls="smart_olt-tab-pane">
+                                    <i class="bi bi-globe2 me-1 align-middle inline-block"></i>SmartOLT
                                 </a>
                                 <a class="w-full sm:w-auto flex hs-tab-active:font-semibold  hs-tab-active:text-white hs-tab-active:bg-primary rounded-md  py-2 px-4 text-primary text-sm"
                                     href="javascript:void(0);" id="activity-tab" data-hs-tab="#activity-tab-pane"
                                     aria-controls="activity-tab-pane">
                                     <i class="bi bi-activity me-1 align-middle inline-block"></i>Activity
+                                </a>
+                                <a class="w-full sm:w-auto flex hs-tab-active:font-semibold  hs-tab-active:text-white hs-tab-active:bg-primary rounded-md  py-2 px-4 text-primary text-sm"
+                                    href="javascript:void(0);" id="more-tab" data-hs-tab="#more-tab-pane"
+                                    aria-controls="more-tab-pane">
+                                    <i class="bi bi-user me-1 align-middle inline-block"></i>More
                                 </a>
                             </nav>
                             <div>
@@ -111,46 +116,49 @@
                                     aria-labelledby="tickets-tab" tabindex="0">
                                     <livewire:admins.customers.components.tickets-table />
                                 </div>
-                                <div class="tab-pane fade !p-0 !border-0 hidden" id="accounts-tab-pane" role="tabpanel"
-                                    aria-labelledby="accounts-tab" tabindex="0">
-                                    <livewire:admins.customers.components.child-accounts :customerId="$customerId" lazy/>
+                                <div class="tab-pane fade !p-0 !border-0 hidden" id="smart_olt-tab-pane" role="tabpanel"
+                                    aria-labelledby="smart_olt-tab" tabindex="0">
+                                    <livewire:admins.customers.components.network-activity />
                                 </div>
 
-
-                                <div class="tab-pane fade !p-0 !border-0 hidden" id="activity-tab-pane" role="tabpanel"
-                                    aria-labelledby="activity-tab" tabindex="0">
+                                <div class="tab-pane fade !p-0 !border-0 hidden" id="activity-tab-pane"
+                                    role="tabpanel" aria-labelledby="activity-tab" tabindex="0">
                                     <div class="box-body">
                                         <div class="sm:border-b border-gray-200 dark:border-white/10">
                                             <nav class="sm:flex sm:space-x-2 sm:rtl:space-x-reverse" aria-label="Tabs"
                                                 role="tablist">
                                                 <button type="button"
                                                     class="w-full sm:w-auto hs-tab-active:font-semibold hs-tab-active:border-primary hs-tab-active:text-primary py-4 px-1 inline-flex items-center gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-defaulttextcolor hover:text-primary dark:text-[#8c9097] dark:text-white/50 active"
-                                                    id="tabs-with-badges-item-1" data-hs-tab="#system-tab"
-                                                    aria-controls="system-tab">
-                                                    System
+                                                    id="tabs-with-badges-item-1" data-hs-tab="#network-tab"
+                                                    aria-controls="network-tab">
+                                                    Network
                                                 </button>
                                                 <button type="button"
                                                     class="w-full sm:w-auto hs-tab-active:font-semibold hs-tab-active:border-primary hs-tab-active:text-primary py-4 px-1 inline-flex items-center gap-2 border-b-[3px] border-transparent text-sm whitespace-nowrap text-defaulttextcolor hover:text-primary dark:text-[#8c9097] dark:text-white/50"
-                                                    id="tabs-with-badges-item-2" data-hs-tab="#network-tab"
-                                                    aria-controls="network-tab">
-                                                    Network
+                                                    id="tabs-with-badges-item-2" data-hs-tab="#system-tab"
+                                                    aria-controls="system-tab">
+                                                    System
                                                 </button>
 
                                             </nav>
                                         </div>
 
                                         <div class="mt-3">
-                                            <div id="system-tab" role="tabpanel"
+                                            <div id="network-tab" role="tabpanel"
                                                 aria-labelledby="tabs-with-badges-item-1">
-                                                <livewire:admins.customers.components.system-activities />
-                                            </div>
-                                            <div id="network-tab" class="hidden" role="tabpanel"
-                                                aria-labelledby="tabs-with-badges-item-2">
                                                 <livewire:admins.customers.components.network-activity />
+                                            </div>
+                                            <div id="system-tab" class="hidden" role="tabpanel"
+                                                aria-labelledby="tabs-with-badges-item-2">
+                                                <livewire:admins.customers.components.system-activities />
+
                                             </div>
                                         </div>
                                     </div>
-
+                                </div>
+                                <div class="tab-pane fade !p-0 !border-0 hidden" id="more-tab-pane" role="tabpanel"
+                                    aria-labelledby="more-tab" tabindex="0">
+                                    <livewire:admins.customers.components.child-accounts :customerId="$customerId" lazy />
                                 </div>
                             </div>
                         </div>

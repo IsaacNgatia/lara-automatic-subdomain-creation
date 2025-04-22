@@ -153,11 +153,11 @@
                 font-family: 'Helvetica';
                 font-size: 11pt;
             }
-    
+
             @page {
                 margin: 3mm;
             }
-    
+
             .invoice-box {
                 width: 210mm;
                 padding: 0mm;
@@ -166,89 +166,89 @@
                 line-height: 12pt;
                 color: #000;
             }
-    
+
             .party {
                 border: #ccc 1px solid;
             }
-    
+
             table tr.heading td {
                 background: #515151;
                 color: #FFF;
                 padding: 6pt;
             }
-    
+
             .company {
                 width: 300pt;
             }
-    
+
             .customer {
                 width: 290pt;
             }
-    
+
             .bill_info {
                 font-size: 10pt;
             }
-    
+
             .heading {
                 width: 900pt;
             }
-    
+
             .m_fill {
                 background-color: #eee;
             }
-    
+
             .product_list td {
                 padding: 4px;
             }
-    
+
             .product_row td {
                 border: 1px solid #ddd;
             }
-    
+
             .summary td {
                 padding-left: 8pt;
                 padding-right: 8pt;
                 margin: 2px;
                 border: 1px solid #ccc;
-    
-    
+
+
             }
-    
+
             .sign {
                 text-align: center;
                 margin-bottom: 4pt
             }
-    
+
             .logo_box {
                 width: 60%;
                 align: left;
             }
-    
+
             .date_box {
                 width: 30%;
                 align: right;
             }
-    
+
             .text_center {
                 text-align: center;
             }
-    
+
             .text_right {
                 text-align: right;
             }
-    
+
             .sign_box {
                 display: block;
                 margin-left: 400pt;
                 width: 100pt;
                 align: right;
             }
-    
+
             .row {
                 width: 100%;
             }
-    
-    
+
+
         </style> --}}
 </head>
 
@@ -267,7 +267,7 @@
                     <strong>Invoice To:</strong><br>
                     <span>Isaac Miles</span><br>
                     <span>Phone: 0790008915</span><br>
-                    <span>Date: {{ now()->toDateString() }}</span><br>
+                    <span>Date: {{ now(env('APP_TIMEZONE', 'Africa/Nairobi'))->toDateString() }}</span><br>
                 </td>
                 <td style="width: 50%; text-align: right; vertical-align: top;">
                     <strong>Pay To:</strong><br>
@@ -288,7 +288,7 @@
                     <th>Reference No</th>
                     <th>Valid From</th>
                     <th>Valid To</th>
-                    <th>Price (KES)</th>
+                    <th>Price ({{ current_currency() }})</th>
                 </tr>
             </thead>
             <tbody>
@@ -319,7 +319,7 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="5" class="total-row">Total (KES)</td>
+                    <td colspan="5" class="total-row">Total ({{ current_currency() }})</td>
                     <td>3.00</td>
                 </tr>
             </tfoot>
@@ -350,7 +350,7 @@
 </body>
 
 </html>
-{{-- 
+{{--
 <!DOCTYPE html>
 <html>
 <head>

@@ -9,11 +9,11 @@
                         </span>
                     </div>
                     <div class="flex-grow">
-                        <h5 class="block font-semibold text-[1.125rem]">KES
+                        <h5 class="block font-semibold text-[1.125rem]">{{ current_currency() }}
                             {{ number_format((int) $currentSumSubscription) }}</h5>
                         <div class="flex justify-between items-center">
                             <div class="text-[#8c9097] dark:text-white/50 text-[0.75rem]">
-                                {{ now()->format('F') }}<br />Subscriptions
+                                {{ now(env('APP_TIMEZONE', 'Africa/Nairobi'))->format('F') }}<br />Collections
                             </div>
                             <div
                                 class="{{ $currentSumSubscription > $previousSumSubscription ? 'text-success' : 'text-danger' }}">

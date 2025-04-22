@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\CountryService;
 use App\Services\SmsService;
 use Illuminate\Support\ServiceProvider;
 use App\Services\MpesaService;
@@ -22,6 +23,9 @@ class ServicesServiceProvider extends ServiceProvider
         });
         $this->app->singleton(OvpnService::class, function ($app) {
             return new OvpnService();
+        });
+        $this->app->singleton(CountryService::class, function ($app) {
+            return new CountryService();
         });
     }
 

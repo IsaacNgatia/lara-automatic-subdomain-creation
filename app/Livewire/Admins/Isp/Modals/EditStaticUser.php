@@ -5,6 +5,7 @@ namespace App\Livewire\Admins\Isp\Modals;
 use App\Models\Customer;
 use App\Models\Mikrotik;
 use App\Models\StaticUser;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\On;
@@ -34,12 +35,11 @@ class EditStaticUser extends Component
     // Static specific details
     public $username;
     #[Validate('required')]
-    public $status;
-    #[Validate('required')]
     public $ip;
     #[Validate('required')]
     public $maxLimit;
     public $remoteAddress;
+    public $status;
 
     public $customerId;
     public $staticUserId;
@@ -69,14 +69,13 @@ class EditStaticUser extends Component
             $this->billingCycle = $separatedDuration['unit'];
             $this->billingCycleValue = $separatedDuration['value'];
             $this->bill = $customer->billing_amount;
-            $this->expiryDate = $customer->expiry_date;
-            $this->oldExpiryDate = $customer->expiry_date;
+            $this->expiryDate = Carbon::parse($customer->expiry_date)->format('Y-m-d\TH:i');
+            $this->oldExpiryDate = $this->expiryDate;
             $this->referenceNumber = $customer->reference_number;
 
             // Assign PPPoE user details
             $this->staticUserId = $staticUser->id;
             $this->username = $staticUser->mikrotik_name;
-            $this->status = $customer->status == 'active' ? 'yes' : 'no';
             $this->ip = $staticUser->target_address;
             $this->maxLimit = $staticUser->max_download_speed;
 
@@ -110,66 +109,82 @@ class EditStaticUser extends Component
     {
         // Perform validation
         $this->validate();
-        $staticUser = StaticUser::find($this->staticUserId);
-        $customer = Customer::find($this->customerId);
-        $comment = $this->username . ' has been updated at ' . now(env('TIME_ZONE'))->format('d-m-Y H:i:s') . " by " . request()->ip();
-        if (
-            $this->expiryDate != $this->oldExpiryDate ||
-            $this->status != ($customer->status == 'active' ? 'yes' : 'no') ||
-            $this->username != $staticUser->mikrotik_name ||
-            $this->maxLimit != $staticUser->max_download_speed ||
-            $this->ip != $staticUser->target_address
-        ) {
-            $connect = Mikrotik::getLoginCredentials($this->mikrotikId);
-            $data = [
-                'new-name' => $this->username,
-                'old-name' => $staticUser->mikrotik_name,
-                'target-address' => $this->ip,
-                'max-limit' => $this->maxLimit,
-                'status' => $this->status,
-                'comment' => $comment,
-            ];
-            $mikrotikUpdate = StaticUser::updateStaticUser($connect, $data);
-            if ($mikrotikUpdate === true) {
-                session()->flash('success', 'Mikrotik updated successfully. Updating the database ...');
-            } else if ($mikrotikUpdate == 'Undefined array key 0') {
-                return session()->flash('resultError', 'The user is not in the mikrotik');
-            } elseif ($mikrotikUpdate === false) {
-                return session()->flash('resultError', 'Router is now connected to the internet');
-            } else {
-                return session()->flash('resultError', 'There has been an error updating the user');
+        try {
+            //code...
+
+            $staticUser = StaticUser::find($this->staticUserId);
+            $customer = Customer::find($this->customerId);
+            $comment = $this->username . ' has been updated at ' . now(env('TIME_ZONE'))->format('d-m-Y H:i:s') . " by " . request()->ip();
+            $this->checkDateTimeStatus($this->expiryDate);
+            if (
+                $this->expiryDate != $this->oldExpiryDate ||
+                $this->username != $staticUser->mikrotik_name ||
+                $this->maxLimit != $staticUser->max_download_speed ||
+                $this->ip != $staticUser->target_address
+            ) {
+
+                $connect = Mikrotik::getLoginCredentials($this->mikrotikId);
+                $data = [
+                    'target-address' => $this->ip,
+                    'status' => $this->status,
+                    'max-limit' => $this->maxLimit,
+                    'comment' => $comment,
+                ];
+                if ($this->username != $staticUser->mikrotik_name) {
+                    $data['new-name'] = $this->username;
+                    $data['old-name'] = $staticUser->mikrotik_name;
+                    $comment = $this->username . ' has been updated to ' . $staticUser->mikrotik_name . ' at ' . now(env('TIME_ZONE'))->format('d-m-Y H:i:s') . " by " . request()->ip();
+                    $data['comment'] = $comment;
+
+                    $mikrotikUpdate = StaticUser::updateStaticMikrotikName($connect, $data);
+                } else {
+                    $data['name'] = $this->username;
+                    $data['comment'] = $comment;
+                    $mikrotikUpdate = StaticUser::updateStaticUser($connect, $data);
+                }
+                if ($mikrotikUpdate === true) {
+                    session()->flash('success', 'Mikrotik updated successfully. Updating the database ...');
+                } else if ($mikrotikUpdate == 'Undefined array key 0') {
+                    return session()->flash('resultError', 'The user is not in the mikrotik');
+                } elseif ($mikrotikUpdate === false) {
+                    return session()->flash('resultError', 'Router is now connected to the internet');
+                } else {
+                    return session()->flash('resultError', 'There has been an error updating the user');
+                }
             }
-        }
 
-        // Update customer details
-        if ($customer) {
-            $customer->update([
-                'official_name' => $this->officialName,
-                'phone' => $this->phone,
-                'email' => $this->email,
-                'location' => $this->location,
-                'billing_cycle' => $this->getBillingCycle($this->billingCycle, $this->billingCycleValue),
-                'billing_amount' => $this->bill,
-                'expiry_date' => $this->expiryDate,
-                'reference_number' => $this->referenceNumber,
-            ]);
-        } else {
-            throw new ModelNotFoundException('Customer not found.');
-        }
+            // Update customer details
+            if ($customer) {
+                $customer->update([
+                    'official_name' => $this->officialName,
+                    'phone' => $this->phone,
+                    'email' => $this->email,
+                    'location' => $this->location,
+                    'billing_cycle' => $this->getBillingCycle($this->billingCycle, $this->billingCycleValue),
+                    'billing_amount' => $this->bill,
+                    'expiry_date' => $this->expiryDate,
+                    'reference_number' => $this->referenceNumber,
+                ]);
+            } else {
+                throw new ModelNotFoundException('Customer not found.');
+            }
 
-        // Update PPPoE user details
-        if ($staticUser) {
-            $staticUser->update([
-                'mikrotik_name' => $this->username,
-                'disabled' => $this->status == 'yes' ? 0 : 1,
-                'target_address' => $this->ip,
-                'max_download_speed' => $this->maxLimit,
-                'comment' => $comment,
-            ]);
-            session()->flash('success', 'User updated succesfully.');
-            $this->dispatch('static-user-activity-complete');
-        } else {
-            throw new ModelNotFoundException('PPPoE user not found.');
+            // Update Static user details
+            if ($staticUser) {
+                $staticUser->update([
+                    'mikrotik_name' => $this->username,
+                    'target_address' => $this->ip,
+                    'max_download_speed' => $this->maxLimit,
+                    'comment' => $comment,
+                ]);
+                session()->flash('success', 'User updated succesfully.');
+                $this->dispatch('static-user-activity-complete');
+            } else {
+                throw new ModelNotFoundException('Static user not found.');
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            dd($th->getMessage());
         }
     }
     /**
@@ -293,6 +308,12 @@ class EditStaticUser extends Component
         ];
 
         return $billingCycleValue . ' ' . ($billingCycleValue > 1 ? $cycles[$billingCycle] . 's' : $cycles[$billingCycle]);
+    }
+    public function checkDateTimeStatus($datetime)
+    {
+        $date = Carbon::parse($datetime);
+
+        $this->status = $date->isPast() ? 'no' : 'yes';
     }
     public function render()
     {

@@ -20,7 +20,7 @@ class EarningsReport extends Component
      */
     public function mount()
     {
-        $this->selectedMonth = Carbon::now()->month;
+        $this->selectedMonth = Carbon::now(env('APP_TIMEZONE', 'Africa/Nairobi'))->month;
         $this->dailyIncome = $this->getDailyIncomeForMonth($this->selectedMonth);
         $this->dailyExpense = $this->getDailyExpenseForMonth($this->selectedMonth);
         for ($m = 1; $m <= 12; $m++) {
@@ -45,11 +45,11 @@ class EarningsReport extends Component
      */
     protected function getDailyIncomeForMonth($currentMonth)
     {
-        $daysInMonth = Carbon::now()->month($currentMonth)->daysInMonth;
+        $daysInMonth = Carbon::now(env('APP_TIMEZONE', 'Africa/Nairobi'))->month($currentMonth)->daysInMonth;
         $dailyIncome = [];
 
         for ($day = 1; $day <= $daysInMonth; $day++) {
-            $date = Carbon::now()->startOfYear()->addMonths($currentMonth - 1)->addDays($day - 1);
+            $date = Carbon::now(env('APP_TIMEZONE', 'Africa/Nairobi'))->startOfYear()->addMonths($currentMonth - 1)->addDays($day - 1);
             $dailyIncome[] = $this->calculateIncomeForDay($date);
         }
 
@@ -67,11 +67,11 @@ class EarningsReport extends Component
      */
     protected function getDailyExpenseForMonth($currentMonth)
     {
-        $daysInMonth = Carbon::now()->month($currentMonth)->daysInMonth;
+        $daysInMonth = Carbon::now(env('APP_TIMEZONE', 'Africa/Nairobi'))->month($currentMonth)->daysInMonth;
         $dailyIncome = [];
 
         for ($day = 1; $day <= $daysInMonth; $day++) {
-            $date = Carbon::now()->startOfYear()->addMonths($currentMonth - 1)->addDays($day - 1);
+            $date = Carbon::now(env('APP_TIMEZONE', 'Africa/Nairobi'))->startOfYear()->addMonths($currentMonth - 1)->addDays($day - 1);
             $dailyIncome[] = $this->calculateExpenseForDay($date);
         }
 

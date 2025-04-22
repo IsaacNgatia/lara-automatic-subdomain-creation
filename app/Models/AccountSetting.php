@@ -7,15 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class AccountSetting extends Model
 {
     protected $fillable = [
-        'admin_id',
-        'logo',
-        'favicon',
-        'name',
-        'email',
-        'url',
-        'phone',
-        'address',
-        'user_url',
+        'key',
+        'value',
     ];
 
     public function admin()

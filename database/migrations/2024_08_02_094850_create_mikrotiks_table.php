@@ -15,12 +15,13 @@ return new class extends Migration {
             $table->string('name');
             $table->string('user');
             $table->string('password');
-            $table->ipAddress('ip')->default('47.237.106.106');
-            $table->integer('port')->unique();
+            $table->ipAddress('ip')->default('165.227.170.20');
+            $table->integer('port');
             $table->string('location');
             $table->string('recipient')->nullable();
             $table->boolean('nat')->default(0)->nullable();
             $table->boolean('queue_types')->default(0)->nullable();
+            $table->boolean('smartolt')->default(0)->nullable();
             $table->timestamps();
         });
     }

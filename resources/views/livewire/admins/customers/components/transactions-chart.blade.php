@@ -21,7 +21,8 @@
             <div class="xl:col-span-4 lg:col-span-4 md:col-span-4 sm:col-span-4">
                 <div class="mb-1 earning first-half ms-4">First Half</div>
                 <div class="mb-0">
-                    <span class="mt-1 text-[1rem] font-semibold">KES{{ $this->formatToK($firstHalfSum) }}</span>
+                    <span
+                        class="mt-1 text-[1rem] font-semibold">{{ current_currency() }}{{ $this->formatToK($firstHalfSum) }}</span>
                     <span
                         class="badge {{ $firstHalfSum > $secondHalfSum ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger' }} !px-1 !py-2 text-[0.625rem]">
                         @if ($secondHalfSum != 0)
@@ -36,7 +37,7 @@
                 <div class="mb-1 earning top-gross ms-4">Highest Payment
                 </div>
                 <div class="mb-0">
-                    <span class="mt-1 text-[1rem] font-semibold">KES
+                    <span class="mt-1 text-[1rem] font-semibold">{{ current_currency() }}
                         {{ number_format(max($monthlyTransactions)) ?? 0 }}</span>
                 </div>
             </div>
@@ -44,7 +45,8 @@
                 <div class="mb-1 earning second-half ms-3">Second Half
                 </div>
                 <div class="mb-0">
-                    <span class="mt-1 text-[1rem] font-semibold">KES{{ $this->formatToK($secondHalfSum) }}</span>
+                    <span
+                        class="mt-1 text-[1rem] font-semibold">{{ current_currency() }}{{ $this->formatToK($secondHalfSum) }}</span>
                     <span
                         class="badge {{ $secondHalfSum > $firstHalfSum ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger' }} !px-1 !py-2 text-[0.625rem]">
                         @if ($firstHalfSum != 0)

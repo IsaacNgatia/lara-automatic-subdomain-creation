@@ -133,4 +133,17 @@
         </div>
         {{ $epayPackages->links() }}
     </div>
+    <x-modal maxWidth="3xl" preventModalClose=true>
+        @slot('slot')
+            @if ($updatingId)
+                <livewire:admins.hotspot.epay.modals.edit-epay-package :epayPackageId="$updatingId" />
+            @elseif ($deletingId)
+                <livewire:admins.components.modals.delete-item :title="'Delete Epay Hotspot Package'" :message="'Are you sure you want to delete Epay Hotspot Package id ' . $deletingId" :eventToBeDispatched="'delete-epay-package'"
+                    :cancelEvent="'cancel-delete-epay-package'" :list="[]" lazy />
+            @elseif ($voucherIdToDelete)
+                <livewire:admins.components.modals.delete-item :title="'Delete Epay Hotspot Voucher'" :message="'Are you sure you want to delete Epay Hotspot Voucher id ' . $deletingId" :eventToBeDispatched="'delete-epay-voucher'"
+                    :cancelEvent="'cancel-delete-epay-voucher'" :list="[]" lazy />
+            @endif
+        @endslot
+    </x-modal>
 </div>

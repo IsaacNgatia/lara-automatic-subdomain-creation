@@ -27,7 +27,7 @@
                             </div>
                             <div class="md:text-end">
                                 <span class="block font-semibold">Total Paid</span>
-                                <span class="!text-secondary">KES 300k</span>
+                                <span class="!text-secondary">{{current_currency()}} 300k</span>
                             </div>
                             <div class="md:text-end">
                                 <button type="button" class="ti-btn ti-btn-primary-full btn-wave">Generate
@@ -60,7 +60,8 @@
                                             <a href="javascript:void(0);"
                                                 class="ti-btn btn-wave ti-btn-primary !py-1 !px-2 !text-[0.75rem] !m-0 !gap-0 !font-medium"
                                                 aria-expanded="false">
-                                                Sort By<i class="ri-arrow-down-s-line align-middle ms-1 inline-block"></i>
+                                                Sort By<i
+                                                    class="ri-arrow-down-s-line align-middle ms-1 inline-block"></i>
                                             </a>
                                             <ul class="hs-dropdown-menu ti-dropdown-menu hidden" role="menu">
                                                 <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium block"
@@ -75,7 +76,8 @@
                                 </div>
                                 <div class="box-body">
                                     <div class="table-responsive">
-                                        <table class="table whitespace-nowrap table-bordered border-primary/10 min-w-full">
+                                        <table
+                                            class="table whitespace-nowrap table-bordered border-primary/10 min-w-full">
                                             <thead>
                                                 <tr class="border-b border-defaultborder">
                                                     <th scope="col" class="text-start">#</th>
@@ -96,7 +98,7 @@
                                                         <td>{{ $transaction->trans_id }}</td>
                                                         <td>{{ $transaction->trans_time }}</td>
                                                     </tr>
-                                                    @empty
+                                                @empty
                                                     <tr colspan="5">
                                                         <td>
                                                             No transactions were found</td>

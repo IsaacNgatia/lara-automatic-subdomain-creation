@@ -40,37 +40,7 @@
     <!-- Page Header Close -->
 
     <!-- Start:: row-1 -->
-    <div class="grid grid-cols-12 gap-6">
-        <div class="xl:col-span-12 col-span-12">
-            <div class="box">
-                <div class="box-header justify-between">
-                    <div class="box-title">
-                        Add Bulk Users
-                    </div>
-                </div>
-                <div class="box-body">
-                    <div class="box-body space-y-4">
-                        <div class="space-y-4">
-                            <h3>Guidelines</h3>
-                            <ol class="space-y-2">
-                                <li>
-                                    1. Only accept XLXS files.
-                                </li>
-                                <li>
-                                    2. Maximum file size is 3MB.
-                                </li>
-                                <li>
-                                    3. Drag and drop xlxs or click to select multiple files.
-                                </li>
-                            </ol>
-                        </div>
-                        <input type="file" class="filepond multiple-filepond" multiple data-allow-reorder="true"
-                            data-max-file-size="3MB" data-max-files="5">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <livewire:admins.customers.bulk.import-bulk-customers />
 @endsection
 
 @section('scripts')

@@ -26,7 +26,7 @@ class CreateStaticForm extends Component
     public function mount($routerId)
     {
         $timezone = config('app.timezone', 'Africa/Nairobi');
-        $this->staticForm->expiryDate = now()->timezone($timezone)->addMonth()->endOfDay()->format('Y-m-d\TH:i');
+        $this->staticForm->expiryDate = now(env('APP_TIMEZONE', 'Africa/Nairobi'))->timezone($timezone)->addMonth()->endOfDay()->format('Y-m-d\TH:i');
         $this->staticForm->routerId = $routerId;
         // $this->staticForm->status = 'yes';
         $this->staticForm->billingCycle = 'months';
@@ -119,11 +119,11 @@ class CreateStaticForm extends Component
         if ($property == 'staticForm.billingCycle' || $property == 'staticForm.billingCycleValue') {
             $this->staticForm->expiryDate =
                 match ($this->staticForm->billingCycle) {
-                    'days' => now()->addDays((int)$this->staticForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
-                    'weeks' => now()->addWeeks((int)$this->staticForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
-                    'months' => now()->addMonths((int)$this->staticForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
-                    'years' => now()->addYears((int)$this->staticForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
-                    default => now()->addDays(30)->endOfDay()->format('Y-m-d\TH:i'),
+                    'days' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addDays((int)$this->staticForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
+                    'weeks' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addWeeks((int)$this->staticForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
+                    'months' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addMonths((int)$this->staticForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
+                    'years' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addYears((int)$this->staticForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
+                    default => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addDays(30)->endOfDay()->format('Y-m-d\TH:i'),
                 };
         }
 
@@ -135,11 +135,11 @@ class CreateStaticForm extends Component
             $this->staticForm->billingCycle = $servicePlan->billing_cycle;
             $this->staticForm->expiryDate =
                 match ($this->staticForm->billingCycle) {
-                    'days' => now()->addDays((int)$this->staticForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
-                    'weeks' => now()->addWeeks((int)$this->staticForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
-                    'months' => now()->addMonths((int)$this->staticForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
-                    'years' => now()->addYears((int)$this->staticForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
-                    default => now()->addDays(30)->endOfDay()->format('Y-m-d\TH:i'),
+                    'days' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addDays((int)$this->staticForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
+                    'weeks' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addWeeks((int)$this->staticForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
+                    'months' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addMonths((int)$this->staticForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
+                    'years' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addYears((int)$this->staticForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
+                    default => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addDays(30)->endOfDay()->format('Y-m-d\TH:i'),
                 };
         }
 

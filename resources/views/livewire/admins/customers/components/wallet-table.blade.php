@@ -85,5 +85,6 @@
                 @endforelse
             </tbody>
         </table>
+        {{-- {{ $wallets->links() }} --}}
     </div>
 </div>

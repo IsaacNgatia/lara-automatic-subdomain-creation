@@ -1,8 +1,13 @@
 <div class="box-body !p-0">
     <div class="sm:flex items-start p-6 main-profile-cover">
         <div>
-            <span class="avatar avatar-xxl avatar-rounded online me-4">
-                <img src="{{ asset('build/assets/images/faces/9.jpg') }}" alt="">
+            <span
+                class="avatar avatar-xxl avatar-rounded bg-light {{ ($customer->connection_type === 'pppoe' && (isset($mikrotikInfo['mac-address']) || isset($mikrotikInfo['ip-address']) || isset($mikrotikInfo['uptime']))) || ($customer->connection_type === 'static' && (isset($mikrotikInfo['max-limit']) && $mikrotikInfo['max-limit'] != '1k/1k')) ? 'online' : 'offline' }} me-4">
+                @if ($customer->profile_photo_path)
+                    <img src="{{ asset('build/assets/images/faces/9.jpg') }}" alt="">
+                @else
+                    {{ $this->getInitials($customer->official_name) }}
+                @endif
             </span>
         </div>
         <div class="flex-grow main-profile-info">
@@ -15,7 +20,8 @@
             <p class="mb-1 !text-white"><span class="opacity-[0.7]">Mikrotik Name: </span><span
                     class="font-semibold mb-1 text-white text-[1rem]">{{ $user->mikrotik_name }}</span></p>
             <p class="mb-1 !text-white"><span class="opacity-[0.7]">Balance: </span><span
-                    class="font-semibold mb-1 text-white text-[1rem]">KES {{ $customer->balance }}</span></p>
+                    class="font-semibold mb-1 text-white text-[1rem]">{{ current_currency() }}
+                    {{ $customer->balance }}</span></p>
             <div class="flex justify-between items-center">
                 <div class="flex mb-0">
                     <div class="me-6">
@@ -24,7 +30,7 @@
                         <p class="mb-0 text-[.6875rem] opacity-[0.5] text-white">Payment</p>
                     </div>
                     <div class="me-6">
-                        <p class="font-bold text-[1.25rem] text-white text-shadow mb-0">12</p>
+                        <p class="font-bold text-[1.25rem] text-white text-shadow mb-0">{{ $smsCount }}</p>
                         <p class="mb-0 text-[.6875rem] opacity-[0.5] text-white">SMS</p>
                     </div>
                     <div class="me-6">
@@ -32,7 +38,28 @@
                         <p class="mb-0 text-[.6875rem] opacity-[0.5] text-white">Tickets</p>
                     </div>
                 </div>
-                <button type="button" class="ti-btn ti-btn-danger-full btn-wave">Deactivate</button>
+                @if ($customer->status == 'active')
+                    <button type="button" wire:click="downCustomer({{ $customer->id }})"
+                        wire:confirm="Are you sure you want to disconnect this user?"
+                        class="ti-btn ti-btn-danger-full btn-wave"><span wire:loading wire:target="downCustomer"
+                            class="me-2">Disconnecting
+                        </span>
+                        <span wire:loading wire:target="downCustomer" class="loading"><i
+                                class="ri-loader-2-fill text-[1rem] animate-spin"></i></span>
+                        <span wire:loading.class="hidden" wire:target="downCustomer" class="me-2">Disconnect
+                        </span></button>
+                @else
+                    <button type="button" wire:click="raiseCustomer({{ $customer->id }})"
+                        wire:confirm="Are you sure you want to enable this user?"
+                        class="ti-btn ti-btn-success-full btn-wave"><span wire:loading wire:target="raiseCustomer"
+                            class="me-2">Connecting
+                        </span>
+                        <span wire:loading wire:target="raiseCustomer" class="loading"><i
+                                class="ri-loader-2-fill text-[1rem] animate-spin"></i></span>
+                        <span wire:loading.class="hidden" wire:target="raiseCustomer" class="me-2">Connect
+                        </span></button>
+                @endif
+
             </div>
         </div>
     </div>
@@ -46,7 +73,7 @@
             </p>
             <div class="mb-0 flex flex-col md:flex-row justify-between">
                 <p class="">
-                    <span class="font-bold">Username:</span>
+                    <span class="font-bold">Login Username:</span>
                     {{ $customer->username }}
                 </p>
                 <button type="button" class="ti-btn btn-wave !py-1 !px-2 !text-[0.75rem] ti-btn-danger">Reset
@@ -134,11 +161,61 @@
             </p>
         </div>
     </div>
-    <div class="flex justify-between items-center pr-4">
+    <div class="flex justify-between items-center pr-4 border-b border-dashed">
         <div class="p-6 sm:flex items-center gap-2">
             <p class="text-[.9375rem] font-semibold">Expiry Date :</p>
             <p>{{ $customer->expiry_date }}</p>
         </div>
         <button type="button" class="ti-btn btn-wave !py-1 !px-2 !text-[0.75rem] ti-btn-secondary">Edit</button>
+    </div>
+    <div x-data="{ routerIsOnline: @js($routerIsOnline) }" x-init="$nextTick(() => { $dispatch('check-router-is-online'); if (!routerIsOnline) { setTimeout(() => { $dispatch('check-router-is-online') }, 5000) } })"
+        class="p-6 border-b border-dashed dark:border-defaultborder/10 {{ $routerIsOnline ? (($customer->connection_type === 'pppoe' && (isset($mikrotikInfo['mac-address']) || isset($mikrotikInfo['ip-address']) || isset($mikrotikInfo['uptime']))) || ($customer->connection_type === 'static' && (isset($mikrotikInfo['max-limit']) && $mikrotikInfo['max-limit'] != '1k/1k')) ? 'bg-success text-white' : 'bg-danger') : '' }}">
+        <p class="text-[1.2rem] mb-2 me-6 font-semibold text-center">Live Information
+        </p>
+
+        <div class="grid grid-cols-2 gap-5">
+            @if ($customer->connection_type === 'pppoe')
+                <div class="mb-2 text-[#8c9097] dark:text-white text-center">
+                    <p class="font-bold">Ip:</p>
+                    <p class=""> {{ $routerIsOnline == true ? $mikrotikInfo['ip-address'] ?? 'N/A' : 'N/A' }}
+                    </p>
+                </div>
+                <div class="mb-2 text-[#8c9097] dark:text-white text-center">
+                    <p class="font-bold">MAC Address:</p>
+                    <p class="">
+                        {{ $routerIsOnline == true ? $mikrotikInfo['mac-address'] ?? 'N/A' : 'N/A' }}</p>
+                </div>
+                <div class="mb-2 text-[#8c9097] dark:text-white text-center">
+                    <p class="font-bold">Uptime:</p>
+                    <p class=""> {{ $routerIsOnline == true ? $mikrotikInfo['uptime'] ?? 'N/A' : 'N/A' }}</p>
+                </div>
+                <div class="mb-2 text-[#8c9097] dark:text-white text-center">
+                    <p class="font-bold">Last Logged out:</p>
+                    <p class="">
+                        {{ $routerIsOnline == true ? $mikrotikInfo['last-logged-out'] ?? 'N/A' : 'N/A' }}</p>
+                </div>
+            @elseif($customer->connection_type === 'static')
+                <div class="mb-2 text-[#8c9097] dark:text-white text-center">
+                    <p class="font-bold">Target:</p>
+                    <p class=""> {{ $routerIsOnline == true ? $mikrotikInfo['target'] ?? 'N/A' : 'N/A' }}
+                    </p>
+                </div>
+                <div class="mb-2 text-[#8c9097] dark:text-white text-center">
+                    <p class="font-bold">Max Limit:</p>
+                    <p class="">
+                        {{ $routerIsOnline == true ? $mikrotikInfo['max-limit'] ?? 'N/A' : 'N/A' }}</p>
+                </div>
+                <div class="mb-2 text-[#8c9097] dark:text-white text-center">
+                    <p class="font-bold">Burst Limit:</p>
+                    <p class=""> {{ $routerIsOnline == true ? $mikrotikInfo['burst-limit'] ?? 'N/A' : 'N/A' }}
+                    </p>
+                </div>
+                <div class="mb-2 text-[#8c9097] dark:text-white text-center">
+                    <p class="font-bold">Burst Time:</p>
+                    <p class="">
+                        {{ $routerIsOnline == true ? $mikrotikInfo['burst-time'] ?? 'N/A' : 'N/A' }}</p>
+                </div>
+            @endif
+        </div>
     </div>
 </div>

@@ -17,7 +17,8 @@ return new class extends Migration {
             $table->string('email')->nullable();
             $table->string('reference_number')->unique();
             $table->string('phone_number');
-            $table->string('password');
+            $table->unsignedBigInteger('parent_account')->nullable();
+            $table->boolean('is_parent')->nullable()->default(false);
             $table->enum('connection_type', ['static', 'pppoe', 'rhsp']);
             $table->string('location')->nullable();
             $table->foreignId('mikrotik_id')->constrained()->onDelete('cascade'); // Foreign key referencing 'mikrotik' table
@@ -25,22 +26,17 @@ return new class extends Migration {
             $table->decimal('balance', 8, 2)->default('0.00');
             $table->string('billing_cycle')->default('1 month');
             $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
+            $table->float('installation_fee')->nullable();
             $table->dateTime('grace_date')->nullable();
             $table->date('last_payment_date')->nullable();
             $table->dateTime('expiry_date');
+            $table->string('password');
+            $table->text('note')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
-        // Schema::create('client_sessions', function (Blueprint $table) {
-        //     $table->string('id')->primary();
-        //     $table->foreignId('user_id')->nullable()->constrained('customers')->onDelete('cascade')->index();
-        //     $table->string('ip_address', 45)->nullable();
-        //     $table->text('user_agent')->nullable();
-        //     $table->longText('payload');
-        //     $table->integer('last_activity')->index();
-        // });
     }
 
     /**

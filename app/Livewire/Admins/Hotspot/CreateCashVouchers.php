@@ -13,10 +13,11 @@ class CreateCashVouchers extends Component
     public $dataLimitSelected;
     public $timeLimitSelected;
     public $lengthSelected;
-    
-    public function mount($servers, $userProfiles)
+
+    public function mount($servers, $userProfiles, $routerId)
     {
         $this->servers = $servers;
+        $this->hotspotForm->routerId = $routerId;
         $this->userProfiles = $userProfiles;
         $this->hotspotForm->passwordStatus = 1;
         $this->dataLimitSelected = 'MBs';
@@ -28,12 +29,12 @@ class CreateCashVouchers extends Component
     }
     public function createHotspotUser()
     {
+        $this->hotspotForm->validate();
         try {
-            $this->hotspotForm->validate();
             $result = $this->hotspotForm->create();
             if ($result == true) {
-                $this->hotspotForm->reset();
                 session()->flash('success', $this->hotspotForm->quantity . ' Hotspot vouchers created successfully');
+                $this->hotspotForm->reset();
             } else {
                 session()->flash('error', $result);
             }

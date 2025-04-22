@@ -33,7 +33,7 @@ class TransactionsTable extends Component
                     ->orWhere('msisdn', 'like', '%' . $this->search . '%');
             })
             ->orderBy('id', 'desc')
-            ->paginate(5);
+            ->paginate(4);
 
         return view('livewire.admins.customers.components.transactions-table', [
             'transactions' => $transactions,

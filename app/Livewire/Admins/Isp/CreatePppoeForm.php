@@ -31,7 +31,7 @@ class CreatePppoeForm extends Component
     public function mount($routerId)
     {
         $timezone = config('app.timezone', 'Africa/Nairobi');
-        $this->pppoeForm->expiryDate = now()->timezone($timezone)->addMonth()->endOfDay()->format('Y-m-d\TH:i');
+        $this->pppoeForm->expiryDate = now(env('APP_TIMEZONE', 'Africa/Nairobi'))->timezone($timezone)->addMonth()->endOfDay()->format('Y-m-d\TH:i');
         $this->pppoeForm->routerId = $routerId;
         $this->pppoeForm->service = 'pppoe';
         $this->pppoeForm->status = 'yes';
@@ -115,11 +115,11 @@ class CreatePppoeForm extends Component
         if ($property == 'pppoeForm.billingCycle' || $property == 'pppoeForm.billingCycleValue') {
             $this->pppoeForm->expiryDate =
                 match ($this->pppoeForm->billingCycle) {
-                    'days' => now()->addDays((int)$this->pppoeForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
-                    'weeks' => now()->addWeeks((int)$this->pppoeForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
-                    'months' => now()->addMonths((int)$this->pppoeForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
-                    'years' => now()->addYears((int)$this->pppoeForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
-                    default => now()->addDays(30)->endOfDay()->format('Y-m-d\TH:i'),
+                    'days' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addDays((int)$this->pppoeForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
+                    'weeks' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addWeeks((int)$this->pppoeForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
+                    'months' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addMonths((int)$this->pppoeForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
+                    'years' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addYears((int)$this->pppoeForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
+                    default => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addDays(30)->endOfDay()->format('Y-m-d\TH:i'),
                 };
         }
 
@@ -131,11 +131,11 @@ class CreatePppoeForm extends Component
             $this->pppoeForm->billingCycle = $servicePlan->billing_cycle;
             $this->pppoeForm->expiryDate =
                 match ($this->pppoeForm->billingCycle) {
-                    'days' => now()->addDays((int)$this->pppoeForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
-                    'weeks' => now()->addWeeks((int)$this->pppoeForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
-                    'months' => now()->addMonths((int)$this->pppoeForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
-                    'years' => now()->addYears((int)$this->pppoeForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
-                    default => now()->addDays(30)->endOfDay()->format('Y-m-d\TH:i'),
+                    'days' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addDays((int)$this->pppoeForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
+                    'weeks' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addWeeks((int)$this->pppoeForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
+                    'months' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addMonths((int)$this->pppoeForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
+                    'years' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addYears((int)$this->pppoeForm->billingCycleValue)->endOfDay()->format('Y-m-d\TH:i'),
+                    default => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addDays(30)->endOfDay()->format('Y-m-d\TH:i'),
                 };
         }
 

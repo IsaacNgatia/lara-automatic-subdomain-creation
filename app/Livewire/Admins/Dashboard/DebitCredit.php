@@ -25,14 +25,14 @@ class DebitCredit extends Component
      */
     public function mount()
     {
-        $this->selectedYear = now()->year; // Set the selected year to the current year
+        $this->selectedYear = now(env('APP_TIMEZONE', 'Africa/Nairobi'))->year; // Set the selected year to the current year
         // Calculate the sum of trans_amount for each month from the start of the year to the current month
         $this->monthlyDebit = $this->getMonthlyTransactionSums($this->selectedYear);
         $this->monthlyCredit = $this->getMonthlyExpenseSums($this->selectedYear);
         $this->earliestYear = DB::table('transactions')
             ->selectRaw('YEAR(MIN(created_at)) as earliest_year')
             ->value('earliest_year');
-        $this->currentYear = now()->year; // Set the current year to the current year
+        $this->currentYear = now(env('APP_TIMEZONE', 'Africa/Nairobi'))->year; // Set the current year to the current year
     }
     public function updatedSelectedMonth()
     {
@@ -43,7 +43,7 @@ class DebitCredit extends Component
     public function getMonthlyTransactionSums($year)
     {
         // Initialize an array with all months (1 to current month) set to 0
-        $monthlySums = array_fill(1, Carbon::now()->month, 0);
+        $monthlySums = array_fill(1, Carbon::now(env('APP_TIMEZONE', 'Africa/Nairobi'))->month, 0);
 
         // Get actual sums from the database
         $results = Transaction::selectRaw('MONTH(created_at) as month, SUM(trans_amount) as total_amount')
@@ -62,7 +62,7 @@ class DebitCredit extends Component
     public function getMonthlyExpenseSums($year)
     {
         // Initialize an array with all months (1 to current month) set to 0
-        $monthlySums = array_fill(1, Carbon::now()->month, 0);
+        $monthlySums = array_fill(1, Carbon::now(env('APP_TIMEZONE', 'Africa/Nairobi'))->month, 0);
 
         // Get actual sums from the database
         $results = Expense::selectRaw('MONTH(created_at) as month, SUM(amount) as total_amount')

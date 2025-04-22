@@ -3,6 +3,7 @@
 namespace App\Livewire\Admins\Hotspot\Epay;
 
 use App\Models\HotspotEpay;
+use App\Models\Mikrotik;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -27,59 +28,66 @@ class HotspotVouchers extends Component
         $this->updatingId = $id;
         $this->dispatch('open-modal');
     }
-    public function warn($id)
+    public function warnDeletionOfHspVoucher($id)
     {
         $this->deletingId = $id;
-        $this->dispatch('open-modal');
+        $this->dispatch('delete-epay-hotspot-voucher', id: $this->deletingId);
     }
     #[On('cancel-update-epay-package')]
-    public function cancelUpdateEpayPackage()
+    public function cancelUpdateEpayVoucher()
     {
         $this->dispatch('close-modal');
         $this->updatingId = null;
     }
-    #[On('delete-epay-package')]
-    public function deleteEpayPackage()
+    #[On('delete-epay-voucher')]
+    public function deleteEpayVoucher()
     {
-        $epayPackage = HotspotEpay::find($this->deletingId);
-        if ($epayPackage->delete()) {
+        $epayVoucher = HotspotEpay::find($this->deletingId);
+        $mikrotikResponse = Mikrotik::deleteHotspotVoucher(
+            $epayVoucher->name,
+            $epayVoucher->mikrotik_id
+        );
+        if ($mikrotikResponse === true) {
+            $epayVoucher->delete();
+            $this->dispatch('epay-voucher-activity-complete');
             $this->dispatch('epay-package-activity-complete');
         }
     }
-    #[On('cancel-delete-epay-package')]
-    public function cancelDeletePppoeUser()
+    #[On('cancel-delete-epay-voucher')]
+    public function cancelDeleteHspVoucher()
     {
         $this->dispatch('close-modal');
         $this->deletingId = null;
     }
     /**
-     * This function handles the completion of epay package activities.
+     * This function handles the completion of epay voucher activities.
      * It closes the modal, resets the deleting and updating IDs, and dispatches an event to indicate completion.
      *
      * @return void
      */
-    #[On('epay-package-activity-complete')]
-    public function epayPackageActivityComplete()
+    #[On('epay-voucher-activity-complete')]
+    public function epayVoucherActivityComplete()
     {
         $this->dispatch('close-modal');
         $this->deletingId = null;
         $this->updatingId = null;
     }
-    function formatDataLimit($sizeInMB)
+    function formatDataLimit(float $bytes): string
     {
-        if ($sizeInMB == 0) {
-            return 'Unlimited';
+        if ($bytes <= 0) {
+            return "Unlimited";
         }
 
-        $units = ['MB', 'GB', 'TB'];
-        $unitIndex = 0;
+        $units = ["B", "KB", "MB", "GB", "TB", "PB"];
+        $index = 0;
 
-        while ($sizeInMB >= 1024 && $unitIndex < count($units) - 1) {
-            $sizeInMB /= 1024;
-            $unitIndex++;
+        while ($bytes >= 1024 && $index < count($units) - 1) {
+            $bytes /= 1024;
+            $index++;
         }
 
-        return round($sizeInMB, 2) . $units[$unitIndex];
+
+        return round($bytes, 2) . ' ' . $units[$index];
     }
     function formatTimeLimit($seconds)
     {

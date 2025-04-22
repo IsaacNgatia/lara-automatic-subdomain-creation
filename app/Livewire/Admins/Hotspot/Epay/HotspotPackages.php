@@ -19,6 +19,8 @@ class HotspotPackages extends Component
     public $updatingId;
     public $deletingId;
 
+    public $voucherIdToDelete;
+
     public function mount()
     {
         $this->perPage = 10;
@@ -37,20 +39,28 @@ class HotspotPackages extends Component
     #[On('cancel-update-epay-package')]
     public function cancelUpdateEpayPackage()
     {
+
         $this->dispatch('close-modal');
         $this->updatingId = null;
     }
     #[On('delete-epay-package')]
     public function deleteEpayPackage()
     {
-        $epayPackage = EpayPackage::find($this->deletingId);
-        if ($epayPackage->delete()) {
-            $this->dispatch('epay-package-activity-complete');
+        try {
+            $epayPackage = EpayPackage::find($this->deletingId);
+
+            if ($epayPackage->delete()) {
+                $this->dispatch('epay-package-activity-complete');
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            dd($th);
         }
     }
     #[On('cancel-delete-epay-package')]
-    public function cancelDeletePppoeUser()
+    public function cancelDeleteEpayPackage()
     {
+
         $this->dispatch('close-modal');
         $this->deletingId = null;
     }
@@ -66,6 +76,14 @@ class HotspotPackages extends Component
         $this->dispatch('close-modal');
         $this->deletingId = null;
         $this->updatingId = null;
+        $this->voucherIdToDelete = null;
+    }
+    #[On('delete-epay-hotspot-voucher')]
+    public function warnDeletionOfHspVoucher($id)
+    {
+        $this->dispatch('open-modal');
+        $this->voucherIdToDelete = $id;
+        // $this->dispatch('delete-epay-hotspot-voucher', id: $this->deletingId);
     }
     public function countActiveVouchers($id)
     {
@@ -86,7 +104,8 @@ class HotspotPackages extends Component
             $index++;
         }
 
-        return round($bytes, 2) . $units[$index];
+
+        return round($bytes, 2) . ' ' . $units[$index];
     }
 
     function formatTimeLimit($seconds)

@@ -74,7 +74,7 @@ class SetupPublicIp extends Component
     function formatLastModifiedTime($timestamp)
     {
         $date = Carbon::createFromTimestamp($timestamp);
-        $now = Carbon::now();
+        $now = Carbon::now(env('APP_TIMEZONE', 'Africa/Nairobi'));
 
         // If within the last 1 week, return time difference (e.g., "3 hrs ago")
         if ($date->greaterThanOrEqualTo($now->subWeek())) {

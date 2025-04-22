@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccountSetting;
 use App\Models\Callback;
 use App\Models\DefaultCredential;
 use App\Models\EpayPackage;
@@ -27,17 +28,37 @@ class HotspotController extends Controller
         $packages = EpayPackage::select('id', 'title', 'price', 'data_limit', 'time_limit')->where('mikrotik_id', $mikrotikId)->get();
 
         if ($packages->isEmpty()) {
-            return response()->json(['message' => 'No packages found for this Mikrotik'], 404);
+            return response()->json(['success' => false, 'message' => 'No packages found for this Router'], 404);
         }
 
-        return $packages;
+        return response()->json(['success' => true, 'data' => $packages]);
     }
-    public function fetchAccountDetails()
+    public function fetchAccountDetails($mikrotikId = null)
     {
-        return [
-            'logo' => url('logo/temp_logo.png'),
-            'customer_service_phone' => '0712345678'
-        ];
+        $customerServicePhone = AccountSetting::where('key', 'phone')->first()->value;
+        $logo = AccountSetting::where('key', 'logo_url')->first()?->value;
+        if ($mikrotikId) {
+            $mikrotik = Mikrotik::where('id', $mikrotikId)->first();
+            if (!$mikrotik) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Mikrotik not found',
+                    'data' => [
+                        'logo' => is_string($logo) ? asset('storage/' . $logo) : asset('logo/temp_logo.png'),
+                        'title' => AccountSetting::where('key', 'hotspot_title')->first()?->value,
+                        'customer_service_phone' => $customerServicePhone,
+                    ]
+                ], 404);
+            }
+            $customerServicePhone = $mikrotik->recipient;
+        }
+
+        //
+        return response()->json(['success' => true, 'data' => [
+            'logo' => is_string($logo) ? asset('storage/' . $logo) : asset('logo/temp_logo.png'),
+            'customer_service_phone' => $customerServicePhone,
+            'title' => AccountSetting::where('key', 'hotspot_title')->first()->value,
+        ]], 200);
     }
     public function createHotspotVoucher($transId, $phoneNumber, $packageId)
     {
@@ -113,7 +134,7 @@ class HotspotController extends Controller
             // 1. Validate the incoming request payload
             $validator = Validator::make(request()->all(), [
                 'phone' => 'required|string|max:20',
-                'package-id' => 'required|integer|exists:epay_packages,id',
+                'package_id' => 'required|integer|exists:epay_packages,id',
                 'type' => 'required|string|in:epay-package,business', // Example customer types
             ]);
             if ($validator->fails()) {
@@ -129,7 +150,7 @@ class HotspotController extends Controller
             }
 
             // 3. Validate EpayPackage exists
-            $epayPackage = EpayPackage::find($requestPayload['package-id']);
+            $epayPackage = EpayPackage::find($requestPayload['package_id']);
             if (!$epayPackage) {
                 throw new \RuntimeException("Selected package does not exist.");
             }
@@ -153,14 +174,12 @@ class HotspotController extends Controller
             // Handle unexpected errors (returns HTTP 500)
             return response()->json([
                 'success' => false,
-                'message' => 'An unexpected error occurred',
-                'error' => $e->getMessage(), // Only in debug mode
+                'message' => $e->getMessage(), // Only in debug mode
             ], 500);
         }
     }
-    public function checkMpesaTransaction()
+    public function checkMpesaTransaction($requestId)
     {
-        $requestId = request()->input('request-id');
         $callback = Callback::where('merchant_request_id', $requestId)->first();
         if (!$callback) {
             return response()->json(['success' => false, 'message' => 'Transaction not found'], 404);
@@ -171,16 +190,66 @@ class HotspotController extends Controller
             $transaction = Transaction::where('trans_id', $callback->trans_id)->first();
             if (!$transaction) {
                 if (PaymentConfig::where('payment_gateway_id', PaymentGateway::where('name', 'Safaricom Paybill')->first()->id)->where('is_working', true)->first()->short_code === env('DEFAULT_MPESA_PAYBILL', DefaultCredential::select('value')->where('key', 'mpesa_paybill')->first())) {
-                    $mpesaService = new MpesaService();
-                    $transactionData = $mpesaService->transactionStatus($callback->trans_id, 'c2b');
+                    if ($callback->query_transaction_status == 0) {
+                        $mpesaService = new MpesaService();
+                        $transactionData = $mpesaService->transactionStatus($callback->trans_id, 'c2b');
+                        return $transactionData;
+                    } else {
+                        return response()->json(['success' => false, 'message' => 'Transaction not found'], 404);
+                    }
                 }
-                return response()->json(['success' => false, 'message' => 'Waiting for Payment'], 404);
+                return ['success' => false, 'pending' => true, 'message' => 'Waiting for Payment'];
             }
 
             if ($transaction->customer_type === 'epay-hsp-voucher') {
+                if ($transaction->customer_id == null) {
+                    $epayPackage = EpayPackage::find($callback->customer_id);
+                    $connect = Mikrotik::getLoginCredentials($epayPackage->mikrotik_id);
+                    $voucherData = [
+                        'server' => $epayPackage->server,
+                        'profile' => $epayPackage->profile,
+                        'timelimit' => $epayPackage->time_limit,
+                        'datalimit' => $epayPackage->data_limit,
+                        'length' => $epayPackage->voucher_length,
+                        'password-status' => $epayPackage->password_status,
+                        'mikrotik-id' => $epayPackage->mikrotik_id,
+                        'package-id' => $callback->customer_id,
+                        'price' => $epayPackage->price,
+                        'set-expiry' => false
+                    ];
+
+                    $createVoucher = HotspotEpay::generateHotspotVoucher($connect, $voucherData);
+
+                    $transType = 'subscription';
+                    if ($createVoucher['success']) {
+                        $customerId = $createVoucher['voucher']['id']->id;
+                        $customerType = 'epay-hsp-voucher';
+                    }
+                    Transaction::create([
+                        'trans_id' => $callback->trans_id,
+                        'trans_amount' => $callback->amount,
+                        'trans_time' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->format('Y-m-d H:i:s'),
+                        'msisdn' => $callback->phone,
+                        'first_name' => 'epay',
+                        'middle_name' => 'hsp',
+                        'last_name' => $customerId,
+                        'payment_gateway' => 'mpesa',
+                        'is_known' => 1,
+                        'is_partial' => 0,
+                        'mikrotik_id' => $epayPackage->mikrotik_id,
+                        'customer_type' => $customerType ?? 'epay-hsp-voucher',
+                        'customer_id' => $customerId ?? null,
+                        'trans_type' => $transType,
+                        'valid_from' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->format('Y-m-d H:i:s'),
+                    ]);
+                    $callback->update([
+                        'query_transaction_status' => true,
+                    ]);
+                    return ['success' => false, 'pending' => true, 'message' => 'Generating voucher'];
+                }
                 $hotspotEpay = HotspotEpay::where('id', $transaction->customer_id)->first();
                 if (!$hotspotEpay) {
-                    return response()->json(['success' => false, 'message' => 'Waiting for Payment'], 404);
+                    return ['success' => false, 'message' => 'Payment is pending'];
                 }
 
                 $expiryDate = $this->addSecondsToDatetime($hotspotEpay->time_limit);

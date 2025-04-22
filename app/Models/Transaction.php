@@ -30,7 +30,9 @@ class Transaction extends Model
         'is_known',
         'valid_from',
         'valid_until',
-        'updated_at'
+        'comment',
+        'updated_at',
+        'created_at'
     ];
     /**
      * Scope a query to filter transactions by reference number.

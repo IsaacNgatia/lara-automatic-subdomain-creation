@@ -27,18 +27,18 @@ class UsersSummary extends Component
         // Calculate the number of inactive users
         $this->inactiveUsers = DB::table('customers')
             ->where(function ($query) {
-                $query->where('grace_date', '<', now())
+                $query->where('grace_date', '<', now(env('APP_TIMEZONE', 'Africa/Nairobi')))
                     ->orWhereNull('grace_date')
-                    ->where('expiry_date', '<', now());
+                    ->where('expiry_date', '<', now(env('APP_TIMEZONE', 'Africa/Nairobi')));
             })
             ->count();
 
         // Calculate the number of active users
         $this->activeUsers = DB::table('customers')
             ->where(function ($query) {
-                $query->where('grace_date', '>', now())
+                $query->where('grace_date', '>', now(env('APP_TIMEZONE', 'Africa/Nairobi')))
                     ->orWhereNull('grace_date')
-                    ->where('expiry_date', '>', now());
+                    ->where('expiry_date', '>', now(env('APP_TIMEZONE', 'Africa/Nairobi')));
             })
             ->count();
         $this->currentSumSubscription = $this->getCurrentMonthTotal();
@@ -47,13 +47,13 @@ class UsersSummary extends Component
     function getCurrentMonthTotal()
     {
         return DB::table('transactions')
-            ->whereMonth('created_at', Carbon::now()->month)
-            ->whereYear('created_at', Carbon::now()->year)
+            ->whereMonth('created_at', Carbon::now(env('APP_TIMEZONE', 'Africa/Nairobi'))->month)
+            ->whereYear('created_at', Carbon::now(env('APP_TIMEZONE', 'Africa/Nairobi'))->year)
             ->sum('trans_amount');
     }
     function getPreviousMonthTotal()
     {
-        $previousMonth = Carbon::now()->subMonth();
+        $previousMonth = Carbon::now(env('APP_TIMEZONE', 'Africa/Nairobi'))->subMonth();
         return DB::table('transactions')
             ->whereMonth('created_at', $previousMonth->month)
             ->whereYear('created_at', $previousMonth->year)

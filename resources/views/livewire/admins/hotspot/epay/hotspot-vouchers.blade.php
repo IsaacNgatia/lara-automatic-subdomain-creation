@@ -87,7 +87,7 @@
                             <td>
                                 <div class="hstack gap-2 flex-wrap">
 
-                                    <div wire:click="warn({{ $epayVoucher->id }})"
+                                    <div wire:click="warnDeletionOfHspVoucher({{ $epayVoucher->id }})"
                                         class="hs-tooltip ti-main-tooltip [--placement:top]">
                                         <button type="button" aria-label="anchor"
                                             class="hs-tooltip-toggle me-4 text-danger text-[.875rem] leading-none">

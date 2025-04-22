@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->string('mikrotik_name');
             $table->foreignId('customer_id')->constrained()->onDelete('cascade');
             $table->string('profile');
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->string('service')->default('pppoe');
             $table->ipAddress('remote_address')->nullable();
             $table->boolean('disabled')->default(0);

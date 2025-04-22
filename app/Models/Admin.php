@@ -19,19 +19,14 @@ class Admin extends Authenticatable
     protected $guard = 'web';
     protected $fillable = [
         'username',
-        'name',
         'password',
         'email',
         'type',
         'phone_number',
-        'account_name',
-        'subdomain',
-        'database_name',
         'add',
         'read',
         'delete',
         'edit',
-        'role_id',
     ];
     protected $hidden = [
         'password',

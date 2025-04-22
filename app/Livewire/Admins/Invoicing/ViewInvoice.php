@@ -21,7 +21,7 @@ class ViewInvoice extends Component
         $this->invoice = Invoice::findOrFail($id);
 
         $dueDate = Carbon::parse($this->invoice->due_date);
-        $now = Carbon::now();
+        $now = Carbon::now(env('APP_TIMEZONE', 'Africa/Nairobi'));
 
         // Check if the invoice is past due
         $this->difference = $dueDate->isPast()
@@ -34,14 +34,14 @@ class ViewInvoice extends Component
         return view('livewire.admins.invoicing.view-invoice');
     }
 
-    public function printInvoice($id){
+    public function printInvoice($id)
+    {
         $this->invoice = Invoice::findOrFail($id);
 
         $pdfContent = Pdf::loadView('printables.invoices.invoice', [
             'invoice' => $this->invoice,
         ])->output();
 
-        return response()->streamDownload(fn () => print $pdfContent, 'Invoice'.$this->invoice->id.'.pdf');
-
+        return response()->streamDownload(fn() => print $pdfContent, 'Invoice' . $this->invoice->id . '.pdf');
     }
 }

@@ -17,6 +17,8 @@ class Sms extends Model
         'message_id',
         'subject',
         'customer_id',
+        'updated_at',
+        'created_at'
     ];
     /**
      * Get the customer that received the sent SMS.

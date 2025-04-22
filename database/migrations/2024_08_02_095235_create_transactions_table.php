@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->float('trans_amount');
             $table->string('short_code', length: 50)->nullable();
             $table->string('reference_number')->nullable();
-            $table->foreignId('mikrotik_id')->constrained()->nullable();
+            $table->foreignId('mikrotik_id')->nullable()->constrained();
             $table->foreignId('customer_id')->nullable();
             $table->string('customer_type')->nullable();
             $table->float('org_balance')->nullable();
@@ -27,11 +27,12 @@ return new class extends Migration {
             $table->string('last_name')->nullable();
             $table->string('trans_id');
             $table->string('trans_type');
-            $table->enum('payment_gateway', ['cash', 'mpesa', 'kopokopo', 'flutterwave', 'azampay', 'zenopay'])->default('mpesa')->nullable();
+            $table->enum('payment_gateway', ['cash', 'mpesa', 'kopokopo', 'flutterwave', 'azampay', 'zenopay'])->default('cash')->nullable();
             $table->boolean('is_partial')->default(false);
             $table->boolean('is_known')->default(true);
             $table->dateTime('valid_from')->nullable();
             $table->dateTime('valid_until')->nullable();
+            $table->text('comment')->nullable();
             $table->timestamps();
         });
     }

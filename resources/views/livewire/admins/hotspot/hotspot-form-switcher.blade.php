@@ -113,10 +113,10 @@
             <livewire:admins.hotspot.create-epay-package :servers="$hspServers" :userProfiles="$hspUserProfiles" :routerId="$hspSwitcher->routerId" />
         @elseif ($voucherType === 'cash')
             <!-- Hotspot Cash Form -->
-            <livewire:admins.hotspot.create-cash-vouchers :servers="$hspServers" :userProfiles="$hspUserProfiles" />
+            <livewire:admins.hotspot.create-cash-vouchers :servers="$hspServers" :userProfiles="$hspUserProfiles" :routerId="$hspSwitcher->routerId" />
         @elseif ($voucherType === 'recurring')
             <!-- Recurring Vouchers Form -->
-            <livewire:admins.hotspot.create-recurring-voucher :servers="$hspServers" :userProfiles="$hspUserProfiles" />
+            <livewire:admins.hotspot.create-recurring-voucher :servers="$hspServers" :userProfiles="$hspUserProfiles" :routerId="$hspSwitcher->routerId" />
         @endif
     @endif
 </div>

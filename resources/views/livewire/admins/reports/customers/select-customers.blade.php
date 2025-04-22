@@ -4,7 +4,7 @@
             <div class="box">
                 <div class="box-header justify-between">
                     <div class="box-title">
-                        Add New Vouchers
+                        Customers Report
                     </div>
                 </div>
                 <div class="box-body">

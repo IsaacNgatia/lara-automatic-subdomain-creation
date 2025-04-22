@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -13,17 +14,23 @@ return new class extends Migration
     {
         Schema::create('account_settings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('admin_id')->constrained('admins')->onDelete('cascade');
-            $table->string('logo')->nullable();
-            $table->string('favicon')->nullable();
-            $table->string('name');
-            $table->string('email');
-            $table->string('url')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('address')->nullable();
-            $table->string('user_url')->nullable();
+            $table->string('key');
+            $table->string('value');
             $table->timestamps();
         });
+        DB::table('account_settings')->insert(
+            [
+                ['key' => 'account_title', 'value' => 'ISP Kenya'],
+                ['key' => 'phone', 'value' => ''],
+                ['key' => 'email', 'value' => ''],
+                ['key' => 'logo_url', 'value' => ''],
+                ['key' => 'favicon_url', 'value' => ''],
+                ['key' => 'admin_url', 'value' => ''],
+                ['key' => 'client_url', 'value' => ''],
+                ['key' => 'hotspot_title', 'value' => ''],
+
+            ]
+        );
     }
 
     /**
