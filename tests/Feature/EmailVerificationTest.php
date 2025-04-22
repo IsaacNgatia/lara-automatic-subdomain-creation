@@ -39,7 +39,7 @@ class EmailVerificationTest extends TestCase
 
         $verificationUrl = URL::temporarySignedRoute(
             'verification.verify',
-            now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addMinutes(60),
+            now()->addMinutes(60),
             ['id' => $user->id, 'hash' => sha1($user->email)]
         );
 
@@ -48,7 +48,7 @@ class EmailVerificationTest extends TestCase
         Event::assertDispatched(Verified::class);
 
         $this->assertTrue($user->fresh()->hasVerifiedEmail());
-        $response->assertRedirect(route('dashboard', absolute: false) . '?verified=1');
+        $response->assertRedirect(route('dashboard', absolute: false).'?verified=1');
     }
 
     public function test_email_can_not_verified_with_invalid_hash(): void
@@ -61,7 +61,7 @@ class EmailVerificationTest extends TestCase
 
         $verificationUrl = URL::temporarySignedRoute(
             'verification.verify',
-            now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addMinutes(60),
+            now()->addMinutes(60),
             ['id' => $user->id, 'hash' => sha1('wrong-email')]
         );
 

@@ -24,11 +24,11 @@
     <!-- APP SCSS -->
     @vite(['resources/sass/app.scss'])
 
-
+    <!-- CSS COMPONENTS -->
     @include('admins.layouts.components.styles')
 
     <!-- MAIN JS -->
-    <script src="{{ asset('build/assets/main.js') }}"></script>
+    <script src="{{ asset('build/assets/main.js') }}" defer></script>
 
     @yield('styles')
 
@@ -99,15 +99,13 @@
     @yield('scripts')
 
     <!-- STICKY JS -->
-    <script src="{{ asset('build/assets/sticky.js') }}"></script>
+    <script src="{{ asset('build/assets/sticky.js') }}" defer></script>
 
     <!-- APP JS -->
     @vite('resources/js/app.js')
 
-
     <!-- CUSTOM-SWITCHER JS -->
     @vite('resources/assets/js/custom-switcher.js')
-
 
     <!-- END SCRIPTS -->
 
