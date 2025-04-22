@@ -4,7 +4,6 @@ use App\Http\Controllers\CallbackController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HotspotController;
 use App\Http\Controllers\OvpnController;
-use App\Http\Controllers\PaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +37,7 @@ Route::prefix('hsp')
             Route::get('/check-transaction-status/{requestId}', [HotspotController::class, 'checkMpesaTransaction'])->name('mpesa.check.transaction.status');
         });
     });
+
 
 
 Route::prefix('callback')

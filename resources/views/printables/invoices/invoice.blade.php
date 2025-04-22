@@ -319,7 +319,7 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="5" class="total-row">Total ({{ current_currency() }})</td>
+                    <td colspan="5" class="total-row">Total (KES)</td>
                     <td>3.00</td>
                 </tr>
             </tfoot>
