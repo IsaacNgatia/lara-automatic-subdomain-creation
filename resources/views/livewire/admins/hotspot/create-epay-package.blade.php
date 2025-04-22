@@ -88,7 +88,7 @@
                     <div class="col-span-12 md:col-span-6">
                         <label for="hspTimeLimit" class="form-label">Time Limit</label>
                         <div class="flex justify-between gap-4">
-                            <select value="timeLimitSelected" id="hspTimeLimit" class="form-select !py-[0.59rem]">
+                            <select wire:model="timeLimitSelected" id="hspTimeLimit" class="form-select !py-[0.59rem]">
                                 <option value="minutes" {{ $timeLimitSelected == 'minutes' ? 'selected' : '' }}>Minutes
                                 </option>
                                 <option value="hours" {{ $timeLimitSelected == 'hours' ? 'selected' : '' }}>Hours

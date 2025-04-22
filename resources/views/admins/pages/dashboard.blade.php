@@ -75,7 +75,7 @@
 
     <!-- HRM Dashboard JS -->
     <script src="{{ asset('assets/js/courses-dashboard.js') }}"></script>
-    {{-- @vite('resources/assets/js/custom/dashboard/earnings-report.js')
+    @vite('resources/assets/js/custom/dashboard/earnings-report.js')
     @vite('resources/assets/js/custom/dashboard/subscription-chart.js')
-    @vite('resources/assets/js/custom/dashboard/yearly-debit-credit.js') --}}
+    @vite('resources/assets/js/custom/dashboard/yearly-debit-credit.js')
 @endsection

@@ -26,7 +26,7 @@ class TransactionsChart extends Component
     {
         $referenceNumber = $this->customer->reference_number;
         $customerId = $this->customer->id;
-        $currentYear = now()->year; // Get the current year
+        $currentYear = now(env('APP_TIMEZONE', 'Africa/Nairobi'))->year; // Get the current year
 
         // Sum transactions from January to June of the current year
         $sum = DB::table('transactions')
@@ -45,7 +45,7 @@ class TransactionsChart extends Component
     {
         $referenceNumber = $this->customer->reference_number;
         $customerId = $this->customer->id;
-        $currentYear = now()->year;
+        $currentYear = now(env('APP_TIMEZONE', 'Africa/Nairobi'))->year;
 
         return Transaction::where(function ($query) use ($referenceNumber, $customerId) {
             $query->where('reference_number', $referenceNumber)
@@ -60,7 +60,7 @@ class TransactionsChart extends Component
     {
         $referenceNumber = $this->customer->reference_number;
         $customerId = $this->customer->id;
-        $currentYear = now()->year; // Get the current year
+        $currentYear = now(env('APP_TIMEZONE', 'Africa/Nairobi'))->year; // Get the current year
 
         $highestAmount = DB::table('transactions')
             ->where(function ($query) use ($referenceNumber, $customerId) {

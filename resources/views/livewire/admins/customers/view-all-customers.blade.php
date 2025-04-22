@@ -60,10 +60,7 @@
                                 <a href="{{ route('customer.view.one', $customer->id) }}"
                                     class="inline-flex items-center text-secondary hover:text-secondary/15 dark:text-secondary/90 dark:hover:text-secondary/50 hover:underline transition-colors duration-200">
                                     <div class="flex items-center">
-                                        <span class="avatar avatar-xs me-2 online avatar-rounded">
-                                            <img src="{{ asset('build/assets/images/faces/13.jpg') }}" alt="img">
-                                        </span>
-                                        <span>{{ $customer->official_name }}</span>
+                                        {{ $customer->official_name }}
                                     </div>
                                 </a>
                             </th>

@@ -23,6 +23,7 @@ class Callback extends Model
         'customer_type',
         'customer_id',
         'payment_gateway_id',
+        'query_transaction_status',
         'updated_at',
     ];
 }

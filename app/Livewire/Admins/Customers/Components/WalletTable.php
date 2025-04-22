@@ -36,7 +36,7 @@ class WalletTable extends Component
                 'transactions.trans_time'
             )
             ->orderBy('wallets.id', 'desc') // Sort results in descending order by wallet ID
-            ->paginate(5); // Paginate results, 10 per page
+            ->paginate(4); // Paginate results, 10 per page
 
         return view('livewire.admins.customers.components.wallet-table', [
             'wallets' => $walletRecords

@@ -13,15 +13,13 @@ return new class extends Migration
     {
         Schema::create('hotspot_cashes', function (Blueprint $table) {
             $table->id();
-            $table->string('voucher_name');
+            $table->string('username');
             $table->string('password')->nullable();
-            $table->string('reference_number')->unique();
-            $table->integer('time_limit');
-            $table->integer('data_limit');
+            $table->bigInteger('time_limit');
+            $table->bigInteger('data_limit')->nullable();
             $table->string('server');
             $table->string('profile');
             $table->boolean('is_sold')->default(false);
-            $table->boolean('logged_in')->default(false);
             $table->foreignId('mikrotik_id')->constrained()->onDelete('cascade');
             $table->integer('price');
             $table->string('comment');

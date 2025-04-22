@@ -39,7 +39,7 @@ class ZenoPayService
             'account_id' => $paymentConfig['client_id'],
             'api_key' => $paymentConfig['client_key'],
             'secret_key' => $paymentConfig['client_secret'],
-            'webhook_url' => url('callback/zno/process-order'),
+            'webhook_url' => url('api/callback/zno/process-order'),
             'metadata' => json_encode([
                 "product_id" => "12345",
                 "color" => "blue",
@@ -134,7 +134,7 @@ class ZenoPayService
             $callback = Callback::where('merchant_request_id', $data['order-id'])->first();
             if (strtolower($responseData['payment_status']) === 'completed' || $callback->status === 'completed') {
 
-                strtolower($responseData['payment_status']) === 'completed' && $callback->update(['status' => 'completed', 'updated_at' => now()]);
+                strtolower($responseData['payment_status']) === 'completed' && $callback->update(['status' => 'completed', 'updated_at' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))]);
                 $result = [
                     'success' => true,
                     'message' => 'Transaction has been received successfully'
@@ -201,7 +201,7 @@ class ZenoPayService
             $validUntil = null;
             $paymentGateway = PaymentGateway::where('name', 'ZenoPay')->first()->id;
             $transType = 'subscription';
-            $transTime = now();
+            $transTime = now(env('APP_TIMEZONE', 'Africa/Nairobi'));
             if ($callback) {
                 $validFrom = $transTime;
                 $callback->update([

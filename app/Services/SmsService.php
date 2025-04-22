@@ -929,7 +929,7 @@ class SmsService
         $placeholders = [
             '{first_name}' => $voucher->first_name ?? 'customer',
             '{hsp_amount_received}' => $voucher->price ?? '',
-            '{hsp_username}' => $voucher->name ?? '',
+            '{hsp_username}' => $voucher->username ?? '',
             '{hsp_password}' => $voucher->password ?? '',
             '{hsp_datalimit}' => $voucher->data_limit ?? '',
             '{hsp_timelimit}' => $voucher->time_limit ?? '',

@@ -26,7 +26,7 @@ class CreateEpayPackage extends Component
     public $profileSelected;
     #[Validate('required')]
     public $title;
-    #[Validate('required|integer|min:1')]
+    #[Validate('required|integer')]
     public $dataLimitValue;
     #[Validate('required|integer|min:1')]
     public $timeLimitValue;
@@ -53,7 +53,7 @@ class CreateEpayPackage extends Component
             return;
         }
         // Convert data limit to MBs
-        $dataLimit = $this->convertToMBs($this->dataLimitSelected, $this->dataLimitValue);
+        $dataLimit = $this->dataLimitValue === '0' ? null : $this->convertToBytes($this->dataLimitSelected, $this->dataLimitValue);
 
         // Check if an identical package already exists
         $exists = EpayPackage::where([
@@ -92,7 +92,7 @@ class CreateEpayPackage extends Component
             session()->flash('resultError', $result);
         }
     }
-    function convertToMBs(string $unit, float $value): float|string|null
+    function convertToBytes(string $unit, float $value): float|string|null
     {
         if ($value == 0) {
             return null;

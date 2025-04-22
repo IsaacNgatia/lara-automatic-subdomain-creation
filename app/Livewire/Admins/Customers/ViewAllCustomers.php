@@ -88,9 +88,23 @@ class ViewAllCustomers extends Component
     #[On('customer-activity-complete')]
     public function pppoeActivityComplete()
     {
-        $this->dispatch('close-modal');
         $this->deletingId = null;
         $this->updatingId = null;
+    }
+    #[On('close-modal')]
+    public function closeModal()
+    {
+        $this->pppoeActivityComplete();
+    }
+
+    public function getInitials($name)
+    {
+        $name = explode(' ', $name);
+        $initials = '';
+        foreach ($name as $n) {
+            $initials .= strtoupper($n[0]);
+        }
+        return $initials;
     }
     public function render()
     {

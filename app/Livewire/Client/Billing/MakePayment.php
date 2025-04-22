@@ -72,11 +72,11 @@ class MakePayment extends Component
                 'PartyA' => $this->phone_number,
                 'PartyB' => 4149535,
                 'PhoneNumber' => $this->phone_number,
-                'CallBackURL' =>  env('APP_URL')."/paymentCallBack",
+                'CallBackURL' =>  env('APP_URL') . "/paymentCallBack",
                 'AccountReference' => $this->reference_number,
                 'TransactionDesc' => 'ISP KENYA PAYMENT',
                 'Remark' => $this->reference_number,
-              ];
+            ];
             $mpesaService->c2b(
                 $data
             );
@@ -199,7 +199,7 @@ class MakePayment extends Component
         //         Payment::create([
         //             'customer_id' => $this->customer->id,
         //             'amount' => $this->customer->installation_fee,
-        //             'payment_date' => now(),
+        //             'payment_date' => now(env('APP_TIMEZONE', 'Africa/Nairobi')),
         //             'payment_method' => "MPESA",
         //             'transaction_id' => "MPESATXNID",
         //             'purpose' => 'installation fee',
@@ -213,45 +213,45 @@ class MakePayment extends Component
         //         ]);
         //     }
 
-            // if ($amount >= $service_fee) {
-            //     $amount -= $service_fee;
-            //     // Allocate service fee
-            //     $customer->services()->create([
-            //         'amount' => $service_fee,
-            //         'description' => 'Service Fee',
-            //         // TODO::Add billing cycle here
-            //         'expiry_date' => now()->addDays(30)
-            //     ]);
-            // }
+        // if ($amount >= $service_fee) {
+        //     $amount -= $service_fee;
+        //     // Allocate service fee
+        //     $customer->services()->create([
+        //         'amount' => $service_fee,
+        //         'description' => 'Service Fee',
+        //         // TODO::Add billing cycle here
+        //         'expiry_date' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->addDays(30)
+        //     ]);
+        // }
 
-            // if ($amount > 0) {
-            //     // Allocate remaining amount to wallet
-            //     $customer->wallet()->create([
-            //         'amount' => $amount,
-            //         'description' => 'Remaining Balance'
-            //     ]);
-            // }
+        // if ($amount > 0) {
+        //     // Allocate remaining amount to wallet
+        //     $customer->wallet()->create([
+        //         'amount' => $amount,
+        //         'description' => 'Remaining Balance'
+        //     ]);
+        // }
         // } else {
-            // Subsequent payments
-            // $services = $customer->services()->where('expiry_date', '<', now())->get();
+        // Subsequent payments
+        // $services = $customer->services()->where('expiry_date', '<', now(env('APP_TIMEZONE', 'Africa/Nairobi')))->get();
 
-            // foreach ($services as $service) {
-            // if ($amount >= $service_fee) {
-            //     $amount -= $service_fee;
-            //     // Extend service expiry date
-            //     $service->update([
-            //     'expiry_date' => $service->expiry_date->addDays(30)
-            //     ]);
-            // }
-            // }
+        // foreach ($services as $service) {
+        // if ($amount >= $service_fee) {
+        //     $amount -= $service_fee;
+        //     // Extend service expiry date
+        //     $service->update([
+        //     'expiry_date' => $service->expiry_date->addDays(30)
+        //     ]);
+        // }
+        // }
 
-            // if ($amount > 0) {
-            // // Allocate remaining amount to wallet
-            // $customer->wallet()->create([
-            //     'amount' => $amount,
-            //     'description' => 'Remaining Balance'
-            // ]);
-            // }
+        // if ($amount > 0) {
+        // // Allocate remaining amount to wallet
+        // $customer->wallet()->create([
+        //     'amount' => $amount,
+        //     'description' => 'Remaining Balance'
+        // ]);
+        // }
         // }
     }
 }

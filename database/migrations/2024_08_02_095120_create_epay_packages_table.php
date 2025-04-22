@@ -20,8 +20,8 @@ return new class extends Migration
             $table->integer('price');
             $table->integer('voucher_length')->default('6');
             $table->foreignId('mikrotik_id')->constrained()->onDelete('cascade');
-            $table->integer('time_limit');
-            $table->integer('data_limit')->nullable();
+            $table->bigInteger('time_limit');
+            $table->bigInteger('data_limit')->nullable();
             $table->timestamps();
         });
     }

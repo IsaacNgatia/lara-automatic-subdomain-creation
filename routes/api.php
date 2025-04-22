@@ -4,6 +4,7 @@ use App\Http\Controllers\CallbackController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HotspotController;
 use App\Http\Controllers\OvpnController;
+use App\Http\Controllers\PaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,7 +22,7 @@ Route::get('/create-hotspot-voucher/{transId}/{phoneNumber}/{packageId}', [Hotsp
 Route::prefix('hsp')
     ->group(function () {
         Route::prefix('epay')->group(function () {
-            Route::get('/get-account-details', [HotspotController::class, 'fetchAccountDetails']);
+            Route::get('/get-account-details/{mikrotikId}', [HotspotController::class, 'fetchAccountDetails']);
             Route::get('/fetch-hotspot-packages/{mikrotikId}', [HotspotController::class, 'fetchHotspotPackages']);
         });
 
@@ -34,10 +35,9 @@ Route::prefix('hsp')
         // M-Pesa Routes
         Route::prefix('em')->group(function () {
             Route::post('/initiate-stk', [HotspotController::class, 'initiateMpesaStk'])->name('mpesa.initiate.stk');
-            Route::post('/check-transaction-status', [HotspotController::class, 'initiateMpesaStk'])->name('mpesa.initiate.stk');
+            Route::get('/check-transaction-status/{requestId}', [HotspotController::class, 'checkMpesaTransaction'])->name('mpesa.check.transaction.status');
         });
     });
-
 
 
 Route::prefix('callback')
@@ -45,15 +45,17 @@ Route::prefix('callback')
     ->group(function () {
         // Routes from M-Pesa
         Route::prefix('em')->group(function () {
-            Route::post('/confirmation', [CallbackController::class, 'mpesaCallback']);
-            Route::post('/validation', [CallbackController::class, 'mpesaCallback']);
-            Route::post('/transaction', [CallbackController::class, 'handleMpesaTransactionCallback']);
+            Route::post('/test', [PaymentController::class, 'testMpesa'])->name('mpesa.payment.test.callback');
+            Route::post('/confirmation', [CallbackController::class, 'mpesaCallback'])->name('mpesa.payment.callback');
+            Route::post('/validation', [CallbackController::class, 'mpesaCallback'])->name('mpesa.payment.validation');
+            Route::post('/transaction', [CallbackController::class, 'handleMpesaTransactionCallback'])->name('mpesa.transaction.callback');
+            Route::post('/transaction-diff-receiver', [CallbackController::class, 'handleMpesaTransactionCallback'])->name('mpesa.transaction.callback');
             Route::post('/query-transaction-status', [CallbackController::class, 'handleMpesaQueryTransactionStatusCallback']);
             Route::post('/transaction-query-timeout', [CallbackController::class, 'handleMpesaTransactionCallback']);
         });
 
         // Routes from ZenoPay
         Route::prefix('zno')->group(function () {
-            Route::post('/process-order', [CallbackController::class, 'zenoCallback']);
+            Route::post('/process-order', [CallbackController::class, 'zenoCallback'])->name('zeno.initiate.stk');
         });
     });

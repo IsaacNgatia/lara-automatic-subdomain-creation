@@ -25,8 +25,8 @@ class SelectCustomers extends Component
         $this->customers = Customer::query()
             ->select('id', 'official_name')
             ->get();
-        $this->startingDate = Carbon::now()->startOfMonth()->toDateTimeString();
-        $this->endingDate = Carbon::now()->toDateTimeString();
+        $this->startingDate = Carbon::now(env('APP_TIMEZONE', 'Africa/Nairobi'))->startOfMonth()->toDateTimeString();
+        $this->endingDate = Carbon::now(env('APP_TIMEZONE', 'Africa/Nairobi'))->toDateTimeString();
         $this->createReport = false;
     }
 

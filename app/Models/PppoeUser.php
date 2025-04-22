@@ -88,7 +88,7 @@ class PppoeUser extends Model
     {
         $routerosApiService = app(RouterosApiService::class);
         try {
-            if (self::checkRouterStatus($connect)) {
+            if (Mikrotik::checkRouterStatus($connect)) {
                 $pppoeUser = $routerosApiService->comm(
                     "/ppp/secret/getall",
                     array(
@@ -124,6 +124,7 @@ class PppoeUser extends Model
             }
         } catch (\Throwable $th) {
             //throw $th;
+            dd($th->getMessage());
             return $th->getMessage();
         }
     }

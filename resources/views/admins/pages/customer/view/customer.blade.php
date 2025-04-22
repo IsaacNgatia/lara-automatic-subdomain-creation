@@ -41,23 +41,16 @@
     <script src="{{ asset('build/assets/libs/glightbox/js/glightbox.min.js') }}"></script>
     <!-- Apex Charts JS -->
     <script src="{{ asset('build/assets/libs/apexcharts/apexcharts.min.js') }}"></script>
-    <!---Used In Basic Area Chart-->
-    <script src="{{ asset('build/assets/apexcharts-stock-prices.js') }}"></script>
+    <!-- Transactions-Chart JS -->
+    <script src="{{ asset('assets/js/custom/user-profile/transactions-chart.js') }}"></script>
+    <script src="{{ asset('assets/js/custom/user-profile/activity-chart.js') }}"></script>
 
     <!-- Grid JS -->
-    <script src="{{ asset('build/assets/libs/gridjs/gridjs.umd.js') }}"></script>
     <!-- Chartjs Chart JS -->
     <script src="{{ asset('build/assets/libs/chart.js/chart.min.js') }}"></script>
 
-    <!-- Internal Grid JS -->
-    @vite('resources/')
-    <script src="{{ asset('assets/js/grid.js') }}"></script>
-    <!-- Transactions-Chart JS -->
-    <script src="{{ asset('assets/js/custom/user-profile/transactions-chart.js') }}"></script>
     <!-- Internal Profile JS -->
     <script src="{{ asset('assets/js/profile.js') }}"></script>
-    <!-- Internal Apex Area Charts JS -->
-    <script src="{{ asset('assets/js/apexcharts-area.js') }}"></script>
     <!-- Chat JS -->
     <script src="{{ asset('build/assets/chat.js') }}"></script>
 @endsection

@@ -29,7 +29,7 @@ class SubscriptionChart extends Component
 
         // Get actual sums from the database
         $results = Transaction::selectRaw('MONTH(created_at) as month, SUM(trans_amount) as total_amount')
-            ->whereYear('created_at', now()->year) // Filter for the current year
+            ->whereYear('created_at', now(env('APP_TIMEZONE', 'Africa/Nairobi'))->year) // Filter for the current year
             ->groupBy(DB::raw('MONTH(created_at)')) // Group by month
             ->get();
 

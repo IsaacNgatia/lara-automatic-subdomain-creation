@@ -469,7 +469,7 @@
 
             <!-- Button Group -->
             <div class="mt-5 sm:flex justify-between items-center gap-x-2">
-                <div class="mt-5 sm:flex justify-between items-center gap-x-5 md:gap-x-2">
+                <div class="mt-5 sm:flex justify-between items-center gap-x-5 md:gap-x-2 w-full">
                     <button type="button"
                         class="ti-btn ti-btn-light disabled:opacity-50 disabled:pointer-events-none"
                         data-hs-stepper-back-btn wire:click="goBack"><i

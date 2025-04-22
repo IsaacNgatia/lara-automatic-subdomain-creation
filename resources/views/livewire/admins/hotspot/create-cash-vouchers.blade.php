@@ -134,17 +134,16 @@
                     </div>
 
                     <div class="col-span-12">
-                        <button type="submit"
-                                    class="ti-btn ti-btn-primary-full ti-btn-loader btn-wave m-2 w-full">
-                                    <span wire:loading.class="hidden" class="me-2">Generate Cash Vouchers</span>
-                                    <span wire:loading wire.target="createHotspotUser" class="me-2">Creating
-                                        Cash Vouchers</span>
-                                    <span wire:loading wire.target="createHotspotUser" class="loading"><i
-                                            class="ri-loader-2-fill text-[1rem] animate-spin"></i></span>
-                                    @if (session()->has('success'))
-                                        <span class="text-success">Create more</span>
-                                    @endif
-                                </button>
+                        <button type="submit" class="ti-btn ti-btn-primary-full ti-btn-loader btn-wave m-2 w-full">
+                            <span wire:loading.class="hidden" class="me-2">Generate Cash Vouchers</span>
+                            <span wire:loading wire.target="createHotspotUser" class="me-2">Creating
+                                Cash Vouchers</span>
+                            <span wire:loading wire.target="createHotspotUser" class="loading"><i
+                                    class="ri-loader-2-fill text-[1rem] animate-spin"></i></span>
+                            @if (session()->has('success'))
+                                <span class="text-success">Create more</span>
+                            @endif
+                        </button>
                     </div>
                 </form>
             </div>

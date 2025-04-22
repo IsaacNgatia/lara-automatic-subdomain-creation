@@ -12,23 +12,16 @@
                 <form wire:submit="submit">
                     <div class="box shadow-2xl rounded-lg">
                         <div class="box-body !p-[3rem]">
-                            <p class="h5 font-semibold mb-2 text-center">Log In</p>
-                            <p class="mb-4 text-[#8c9097] dark:text-white/50 opacity-[0.7] font-normal text-center">
-                                Welcome back! Log in to your account</p>
+                            @if ($title && $title !== '')
+                                <p class="h3 font-semibold mb-2 text-center">{{ $title }}</p>
+                            @else
+                                <p class="h5 font-semibold mb-2 text-center">Log In</p>
+                            @endif
 
-                            <div class="text-center mb-4">
-                                @if (request()->getHost() === 'ispkenya.xyz') <!-- Replace with your main domain -->
-                                    <a href="{{ route('admin.register') }}" wire:navigate=""
-                                        class="fi-link group/link relative inline-flex items-center justify-center outline-none fi-size-md fi-link-size-md gap-1.5 fi-color-custom fi-color-primary fi-ac-action fi-ac-link-action">
-                                        <span
-                                            class="font-semibold text-sm text-custom-600 dark:text-custom-400 group-hover/link:underline group-focus-visible/link:underline"
-                                            style="--c-400:var(--primary-400);--c-600:var(--primary-600);">
-                                            sign up for an account
-                                        </span>
-                                    </a>
-                                @endif
-                            </div>
-                            
+                            <p class="mb-4 text-[#8c9097] dark:text-white/50 opacity-[0.7] font-normal text-center">
+                                Welcome
+                                back</p>
+
                             @if (session()->has('error'))
                                 <div class="alert alert-danger">
                                     {{ session('error') }}
@@ -79,22 +72,6 @@
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
                                 </div>
-                                <script>
-                                  function createpassword(inputId, button) {
-                                    const input = document.getElementById(inputId);
-                                    const icon = button.querySelector('i');
-                                
-                                    if (input.type === 'password') {
-                                        input.type = 'text';
-                                        icon.classList.remove('ri-eye-off-line');
-                                        icon.classList.add('ri-eye-line');
-                                    } else {
-                                        input.type = 'password';
-                                        icon.classList.remove('ri-eye-line');
-                                        icon.classList.add('ri-eye-off-line');
-                                    }
-                                }
-                                </script>
                                 <div class="xl:col-span-12 col-span-12 grid mt-2">
                                     <button type="submit"
                                         class="ti-btn ti-btn-primary !bg-primary btn-wave !text-white !font-medium"

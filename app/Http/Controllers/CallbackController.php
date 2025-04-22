@@ -7,6 +7,9 @@ use App\Models\Customer;
 use App\Services\MpesaService;
 use App\Services\ZenoPayService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
+use function Illuminate\Log\log;
 
 class CallbackController extends Controller
 {
@@ -33,8 +36,16 @@ class CallbackController extends Controller
     }
     public function handleMpesaTransactionCallback(Request $request)
     {
+        Log::info('payload', json_encode($request->all()));
         $mpesaService = new MpesaService();
         $processTransactionCallback = $mpesaService->processTransactionCallback($request);
+        return response()->json(['success' => $processTransactionCallback, 'message' => 'Callback processed successfully'], 200);
+    }
+    public function handleMpesaTransactionCallbackForDiffReceiver(Request $request)
+    {
+        Log::info('payload', json_encode($request->all()));
+        $mpesaService = new MpesaService();
+        $processTransactionCallback = $mpesaService->processTransactionCallbackForDiffReceiver($request);
         return response()->json(['success' => $processTransactionCallback, 'message' => 'Callback processed successfully'], 200);
     }
     public function handleMpesaQueryTransactionStatusCallback(Request $request)

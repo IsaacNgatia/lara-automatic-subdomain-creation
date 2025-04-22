@@ -11,7 +11,7 @@ use App\Services\OvpnService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
-class Mikrotik extends TenantModel
+class Mikrotik extends Model
 {
     use HasFactory;
     // Define the attributes that are mass assignable
@@ -24,7 +24,8 @@ class Mikrotik extends TenantModel
         'location',
         'recipient',
         'nat',
-        'queue_types'
+        'queue_types',
+        'smartolt'
     ];
     /**
      * Get the customers associated with the Mikrotik.
@@ -199,7 +200,7 @@ class Mikrotik extends TenantModel
                     do {
                         $voucherName = generateRandomNumber($data['length']);
                     } while (HotspotEpay::where('name', $voucherName)->where('mikrotik_id', $data['mikrotik-id'])->exists());
-                    $comment = 'Voucher ' . $voucherName . ' was created at ' . now(env('TIME_ZONE'));
+                    $comment = 'Voucher ' . $voucherName . ' was created at ' . now(env('APP_TIMEZONE', 'Africa/Nairobi'));
                     $mikrotikData = [
                         "server" => $data['server'],
                         "name" => $voucherName,
@@ -349,6 +350,184 @@ class Mikrotik extends TenantModel
             return false;
         }
     }
+    public static function raisePppoeCustomer($customerId)
+    {
+        $routerosApiService = app(RouterosApiService::class);
+        $customer = Customer::find($customerId);
+        $pppoeUser = $customer->pppoeUser;
+        if (self::checkRouterStatus(self::getLoginCredentials($customer->mikrotik_id))) {
+            $comment = $pppoeUser->mikrotik_name . ' has paid was raised on ' . now(env('APP_TIMEZONE', 'Africa/Nairobi'));
+            $pppId = $routerosApiService->comm(
+                "/ppp/secret/getall",
+                array(
+                    ".proplist" => ".id",
+                    "?name" => $pppoeUser->mikrotik_name,
+                )
+            );
+
+            $routerosApiService->comm(
+                "/ppp/secret/set",
+                array(
+                    ".id" => $pppId[0][".id"],
+                    "comment" => $comment,
+                    "profile" => $pppoeUser->profile,
+                    "disabled" => 'no'
+                )
+            );
+
+            $routerosApiService->disconnect();
+
+            $pppoeUser->update([
+                'disabled' => false,
+                'comment' => $comment,
+                'updated_at' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))
+            ]);
+            $customer->update(['status' => 'active']);
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public static function raiseStaticCustomer($customerId)
+    {
+        $routerosApiService = app(RouterosApiService::class);
+        $customer = Customer::find($customerId);
+        $staticUser = $customer->staticUser;
+
+        if (self::checkRouterStatus(self::getLoginCredentials($customer->mikrotik_id))) {
+            $comment = $staticUser->mikrotik_name . '  has paid was raised on ' . now(env('APP_TIMEZONE', 'Africa/Nairobi'));
+
+            $mikrotik = $customer->mikrotik;
+            $arrID = $routerosApiService->comm(
+                "/queue/simple/print",
+                array(
+                    ".proplist" => ".id",
+                    "?name" => $staticUser->mikrotik_name,
+                )
+            );
+            if ($mikrotik->nat == 1) {
+                $natId = $routerosApiService->comm(
+                    "/ip/firewall/nat/getall",
+                    array(
+                        ".proplist" => ".id",
+                        "?src-address" => $staticUser->target_address,
+
+                    )
+                );
+                $natResult = $routerosApiService->comm(
+                    "/ip/firewall/nat/set",
+                    array(
+                        ".id" => $natId[0][".id"],
+                        "comment" => $comment,
+                        "disabled" => 'no',
+                    )
+                );
+            }
+
+            if ($mikrotik->queue_types != 1) {
+                $routerosApiService->comm(
+                    "/queue/simple/set",
+                    array(
+                        ".id" => $arrID[0][".id"],
+                        "name" => $staticUser->mikrotik_name,
+                        "max-limit" => $staticUser->max_download_speed,
+                        "limit-at" => $staticUser->max_download_speed,
+                        "comment" => $comment,
+                        "disabled" => 'no'
+                    )
+                );
+            } else {
+                $routerosApiService->comm(
+                    "/queue/simple/set",
+                    array(
+                        ".id" => $arrID[0][".id"],
+                        "name" => $staticUser->mikrotik_name,
+                        "max-limit" => '0M/0M',
+                        "limit-at" => '0M/0M',
+                        "queue" => $staticUser->max_download_speed . '/' . $staticUser->max_download_speed,
+                        "comment" => $comment,
+                        "disabled" => 'no'
+                    )
+                );
+
+
+                // update filter rule
+                $filterId = $routerosApiService->comm(
+                    "/ip/firewall/filter/print",
+                    array(
+                        ".proplist" => ".id",
+                        "?src-address" => $staticUser->target_address,
+                    )
+                );
+
+                if (isset($filterId[0][".id"])) {
+                    $routerosApiService->comm(
+                        "/ip/firewall/filter/set",
+                        array(
+                            ".id" => $filterId[0][".id"],
+                            "action" => 'accept',
+                            "src-address" => $staticUser->target_address,
+                            "chain" => 'forward',
+                            "comment" => $comment
+                        )
+                    );
+                } else {
+                    $routerosApiService->comm(
+                        "/ip/firewall/filter/add",
+                        array(
+                            "action" => 'accept',
+                            "src-address" => $staticUser->target_address,
+                            "chain" => 'forward',
+                            "comment" => $comment
+                        )
+                    );
+                }
+            }
+            $routerosApiService->disconnect();
+
+            $staticUser->update(['comment' => $comment, 'disabled' => 0, 'updated_at' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->format('Y-m-d H:i:s')]);
+            $customer->update(['status' => 'active']);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static function raiseHotspotCustomer($customerId)
+    {
+
+        $routerosApiService = app(RouterosApiService::class);
+        $customer = Customer::find($customerId);
+        $recurringHotspot = $customer->recurringHotspotUser;
+
+        if (self::checkRouterStatus(self::getLoginCredentials($customer->mikrotik_id))) {
+            $comment = $recurringHotspot->mikrotik_name . ' has paid was raised on ' . now(env('APP_TIMEZONE', 'Africa/Nairobi'));
+            $arrID = $routerosApiService->comm(
+                "/ip/hotspot/user/getall",
+                array(
+                    ".proplist" => ".id",
+                    "?name" => $recurringHotspot->mikrotik_name,
+                )
+            );
+
+            $routerosApiService->comm(
+                "/ip/hotspot/user/set",
+                array(
+                    ".id" => $arrID[0][".id"],
+                    "profile" => $recurringHotspot->profile,
+                    "disabled" => 'no',
+                    "comment" => $comment
+                )
+            );
+
+            $routerosApiService->disconnect();
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public static function updateUserAfterPayment(array $connect, array $data)
     {
         $routerosApiService = app(RouterosApiService::class);
@@ -356,7 +535,7 @@ class Mikrotik extends TenantModel
             if (self::checkRouterStatus($connect)) {
                 if ($data['userType'] == 'pppoe') {
                     $pppoeUser = PppoeUser::where('customer_id', $data['customer_id'])->first();
-                    $comment = $pppoeUser->mikrotik_name . ' has paid ' . $data['amount'] . ' on ' . now(env('TIME_ZONE'));
+                    $comment = $pppoeUser->mikrotik_name . ' has paid ' . $data['amount'] . ' on ' . now(env('APP_TIMEZONE', 'Africa/Nairobi'));
                     $pppId = $routerosApiService->comm(
                         "/ppp/secret/getall",
                         array(
@@ -379,13 +558,13 @@ class Mikrotik extends TenantModel
                     $pppoeUser->update([
                         'disabled' => false,
                         'comment' => $comment,
-                        'updated_at' => now(env('TIME_ZONE'))
+                        'updated_at' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))
                     ]);
                     return true;
                 }
                 if ($data['userType'] == 'static') {
                     $staticUser = StaticUser::where('customer_id', $data['customer_id'])->first();
-                    $comment = $staticUser->mikrotik_name . ' has paid ' . $data['amount'] . ' on ' . now(env('TIME_ZONE'));
+                    $comment = $staticUser->mikrotik_name . ' has paid ' . $data['amount'] . ' on ' . now(env('APP_TIMEZONE', 'Africa/Nairobi'));
                     $customer = Customer::find($data['customer_id']);
                     $mikrotik = $customer->mikrotik;
                     $arrID = $routerosApiService->comm(
@@ -474,12 +653,12 @@ class Mikrotik extends TenantModel
                         }
                     }
                     $routerosApiService->disconnect();
-                    $staticUser->update(['comment' => $comment, 'disabled' => 0, 'updated_at' => now(env('TIME_ZONE'))->format('Y-m-d H:i:s')]);
+                    $staticUser->update(['comment' => $comment, 'disabled' => 0, 'updated_at' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->format('Y-m-d H:i:s')]);
                     return true;
                 }
                 if ($data['userType'] == 'rhsp') {
                     $recurringHotspot = HotspotRecurring::where('customer_id', '=', $data['customer_id'])->first();
-                    $comment = $recurringHotspot->mikrotik_name . ' has paid ' . $data['amount'] . ' on ' . now(env('TIME_ZONE'));
+                    $comment = $recurringHotspot->mikrotik_name . ' has paid ' . $data['amount'] . ' on ' . now(env('APP_TIMEZONE', 'Africa/Nairobi'));
                     $arrID = $routerosApiService->comm(
                         "/ip/hotspot/user/getall",
                         array(
@@ -519,7 +698,7 @@ class Mikrotik extends TenantModel
                 ));
                 // $hasDisconnectProfile = collect($disconnectProfiles)->contains('name', $name);
                 if (empty($disconnectProfiles)) {
-                    $comment = "PPP Profile with name " . $name . " was created on : " . now(env('TIME_ZONE')) . " by " . $_SERVER['REMOTE_ADDR'];
+                    $comment = "PPP Profile with name " . $name . " was created on : " . now(env('APP_TIMEZONE', 'Africa/Nairobi')) . " by " . $_SERVER['REMOTE_ADDR'];
 
                     $routerosApiService->comm(
                         "/ppp/profile/add",
@@ -551,7 +730,7 @@ class Mikrotik extends TenantModel
                 ));
                 // $hasDisconnectProfile = collect($disconnectProfiles)->contains('name', $name);
                 if (empty($disconnectProfiles)) {
-                    $comment = "Hotspot Profile with name " . $name . " was created on : " . now(env('TIME_ZONE')) . " by " . $_SERVER['REMOTE_ADDR'];
+                    $comment = "Hotspot Profile with name " . $name . " was created on : " . now(env('APP_TIMEZONE', 'Africa/Nairobi')) . " by " . $_SERVER['REMOTE_ADDR'];
 
                     $routerosApiService->comm(
                         "/ip/hotspot/user/profile/add",
@@ -579,7 +758,7 @@ class Mikrotik extends TenantModel
             $mikrotik = $customer->mikrotik;
             $connect = self::getLoginCredentials($customer->mikrotik_id);
             if (self::checkRouterStatus($connect)) {
-                $comment = $staticUser->mikrotik_name . ' has been DOWNED on ' . now(env('TIME_ZONE'));
+                $comment = $staticUser->mikrotik_name . ' has been DOWNED on ' . now(env('APP_TIMEZONE', 'Africa/Nairobi'));
                 $arrID = $routerosApiService->comm(
                     "/queue/simple/print",
                     array(
@@ -680,7 +859,7 @@ class Mikrotik extends TenantModel
                 }
 
                 $routerosApiService->disconnect();
-                $staticUser->update(['comment' => $comment, 'disabled' => 1, 'updated_at' => now(env('TIME_ZONE'))->format('Y-m-d H:i:s')]);
+                $staticUser->update(['comment' => $comment, 'disabled' => 1, 'updated_at' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->format('Y-m-d H:i:s')]);
                 $customer->update(['status' => 'inactive']);
                 return true;
             }
@@ -698,7 +877,8 @@ class Mikrotik extends TenantModel
             $mikrotik = $customer->mikrotik;
             $connect = self::getLoginCredentials($customer->mikrotik_id);
             if (self::checkRouterStatus($connect)) {
-                $comment = $pppoeUser->mikrotik_name . ' has been DOWNED on ' . now(env('TIME_ZONE'));
+                self::createPppoeDisconnectProfile($customer->mikrotik_id);
+                $comment = $pppoeUser->mikrotik_name . ' has been DOWNED on ' . now(env('APP_TIMEZONE', 'Africa/Nairobi'));
                 $secret = $routerosApiService->comm(
                     "/ppp/secret/getall",
                     array(
@@ -734,7 +914,7 @@ class Mikrotik extends TenantModel
                 }
 
                 $routerosApiService->disconnect();
-                $result = $pppoeUser->update(['comment' => $comment, 'disabled' => 1, 'updated_at' => now(env('TIME_ZONE'))->format('Y-m-d H:i:s')]);
+                $result = $pppoeUser->update(['comment' => $comment, 'disabled' => 1, 'updated_at' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->format('Y-m-d H:i:s')]);
                 $customer->update(['status' => 'inactive']);
                 return true;
             }
@@ -748,9 +928,9 @@ class Mikrotik extends TenantModel
         $routerosApiService = app(RouterosApiService::class);
         try {
             $customer = Customer::find($customerId);
-            $recurringHspUser = $customer->recurrringHotspotUser;
+            $recurringHspUser = $customer->recurringHotspotUser;
             $mikrotik = $customer->mikrotik;
-            $comment = $recurringHspUser->mikrotik_name . ' has been DOWNED on ' . now(env('TIME_ZONE'));
+            $comment = $recurringHspUser->mikrotik_name . ' has been DOWNED on ' . now(env('APP_TIMEZONE', 'Africa/Nairobi'));
             $connect = self::getLoginCredentials($customer->mikrotik_id);
             if (self::checkRouterStatus($connect)) {
                 $arrID = $routerosApiService->comm(
@@ -772,8 +952,33 @@ class Mikrotik extends TenantModel
                 );
 
                 $routerosApiService->disconnect();
-                $recurringHspUser->update(['comment' => $comment, 'disabled' => 1, 'updated_at' => now(env('TIME_ZONE'))->format('Y-m-d H:i:s')]);
+                $recurringHspUser->update(['comment' => $comment, 'disabled' => 1, 'updated_at' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->format('Y-m-d H:i:s')]);
                 $customer->update(['status' => 'inactive']);
+                return true;
+            }
+        } catch (\Throwable $th) {
+            return $th->getMessage();
+        }
+    }
+    public static function deleteHotspotVoucher($username, $mikrotik_id)
+    {
+        try {
+            $routerosApiService = app(RouterosApiService::class);
+            $connect = self::getLoginCredentials($mikrotik_id);
+            if (self::checkRouterStatus($connect)) {
+                $voucherId = $routerosApiService->comm(
+                    "/ip/hotspot/user/getall",
+                    array(
+                        ".proplist" => ".id",
+                        "?name" => $username,
+                    )
+                );
+                $routerosApiService->comm(
+                    "/ip/hotspot/user/remove",
+                    array(
+                        ".id" => $voucherId[0][".id"],
+                    )
+                );
                 return true;
             }
         } catch (\Throwable $th) {
@@ -785,7 +990,7 @@ class Mikrotik extends TenantModel
         try {
             // Initialize the service
             $ovpnService = new OvpnService();
-            $currentYear = now()->year;
+            $currentYear = now(env('APP_TIMEZONE', 'Africa/Nairobi'))->year;
             $randomPassword = self::generateRandomPassword();
             $username = 'ISPKenya' . $currentYear;
 

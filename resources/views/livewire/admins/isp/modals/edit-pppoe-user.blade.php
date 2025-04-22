@@ -22,11 +22,6 @@
                         @endif
 
                     </div>
-                    <button wire:click="closeModal" type="button"
-                        class="!text-[1.5rem] !font-medium text-[#8c9097] dark:text-white/50 hover:text-defaulttextcolor">
-                        <span class="sr-only">Close</span>
-                        <i class="ri-close-line"></i>
-                    </button>
                 </div>
             </div>
             <div x-data="{ routerStatus: @js($routerStatus) }" x-init="$nextTick(() => { $dispatch('checkout-status'); if (!routerStatus) { setTimeout(() => { $dispatch('checkout-status') }, 5000) } })" class="box-body">
@@ -235,7 +230,7 @@
                             </div>
                             <div class=" col-span-12">
                                 <label for="pppoeExpiryDate" class="form-label">Expiry date</label>
-                                <input wire:model="expiryDate" type="datetime-local"
+                                <input wire:model="expiryDate" type="datetime-local" min=""
                                     class="form-control {{ !$routerStatus ? 'text-muted' : '' }}"
                                     id="input-datetime-local" {{ !$routerStatus ? 'disabled' : '' }}>
                                 @error('expiryDate')

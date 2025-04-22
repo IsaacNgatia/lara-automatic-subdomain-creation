@@ -77,7 +77,7 @@
                                         <td>{{ $stkRequest->phone }}</td>
                                         <td>{{ $stkRequest->amount }}</td>
                                         <td>{{ $stkRequest->trans_id }}</td>
-                                        <td>
+                                        <td class="flex items-center gap-1">
                                             @php
                                                 $status = $stkRequest->status;
                                                 // Define badge class based on status
@@ -88,7 +88,12 @@
                                                             ? 'badge bg-danger'
                                                             : 'badge bg-warning');
                                             @endphp
-                                            <span class="{{ $badgeClass }}">{{ $status }}</span>
+                                            <span class="{{ $badgeClass }}">{{ $status }} </span>
+                                            @if ($status !== 'completed' && $status !== 'failed')
+                                                <i class="bi bi-arrow-clockwise"></i>
+                                            @endif
+
+
                                         </td>
                                         <td>{{ $stkRequest->created_at }}</td>
                                         <td>{{ $stkRequest->trans_timestamp }}</td>

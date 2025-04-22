@@ -2,13 +2,15 @@
 
 namespace App\Livewire\Forms\Admin\Hotspot;
 
+use App\Models\HotspotCash;
 use App\Models\Mikrotik;
+use InvalidArgumentException;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
 
 class CashVouchersForm extends Form
 {
-    #[Validate('required')]
+    #[Validate('required|integer|max:100')]
     public $quantity;
     #[Validate('required')]
     public $passwordStatus;
@@ -28,7 +30,6 @@ class CashVouchersForm extends Form
     public $voucherLength;
     #[Validate('required')]
     public $price;
-    public $pkgName;
     public $routerId;
 
     public function create()
@@ -36,15 +37,9 @@ class CashVouchersForm extends Form
         try {
 
             $seconds = $this->calculateTimeLimit($this->timelimit, $this->timelimitValue);
-            $limitBytesOut = $this->calculateDataLimit($this->datalimit, $this->datalimitValue);
-            // $connect = Mikrotik::getLoginCredentials($this->routerId);
-            $connect = [
-                'ip' => '47.237.106.106',
-                'port' => '1000',
-                'user' => 'ISPKenya',
-                'password' => 'Password@2022.'
-            ];
-            $result = Mikrotik::createHotspotVouchers($connect, [
+            $limitBytesOut = $this->convertToBytes($this->datalimit, $this->datalimitValue);
+
+            return HotspotCash::addVouchers([
                 'timelimit' => $seconds,
                 'datalimit' => $limitBytesOut,
                 'quantity' => $this->quantity,
@@ -53,10 +48,8 @@ class CashVouchersForm extends Form
                 'length' => $this->voucherLength,
                 'password-status' => $this->passwordStatus,
                 'price' => $this->price,
-                'packageName' => $this->pkgName,
-                'mikrotik-id' => '1'
+                'mikrotik-id' => $this->routerId,
             ]);
-            return $result;
         } catch (\Throwable $th) {
             //throw $th;
             return $th->getMessage();
@@ -75,18 +68,27 @@ class CashVouchersForm extends Form
         $seconds = $timelimit * ($conversionFactors[$duration] ?? 1);
         return $seconds;
     }
-    private function calculateDataLimit(string $bandwidth, int $datalimit)
+    function convertToBytes(string $unit, float $value): float|string|null
     {
-        $conversionFactors = [
-            "GBs" => 1000000000, // or 134217728
-            "MBs" => 1000000, // or 1048576
-            "KBs" => 1000, // or 1024
-        ];
+        if ($value == 0) {
+            return null;
+        }
 
-        $limitBytesOut = $datalimit != 0 && isset($conversionFactors[$bandwidth])
-            ? $datalimit * $conversionFactors[$bandwidth]
-            : $datalimit;
-        return $limitBytesOut;
+        $unit = strtolower($unit); // Convert to lowercase for consistency
+
+        switch ($unit) {
+            case 'pbs':
+                return $value * 1073741824 * 1024 * 1024;
+            case 'tbs':
+                return $value * 1073741824 * 1024;
+            case 'gbs':
+                return $value * 1073741824;
+            case 'mbs':
+                return $value * 1048576;
+            case 'kbs':
+                return $value * 1024;
+            default:
+                throw new InvalidArgumentException("Invalid unit: $unit. Allowed units are GBs, MBs, and KBs.");
+        }
     }
-
 }

@@ -69,9 +69,9 @@ class CreateStatic extends Form
             $userData = [
                 'username' => $this->username,
                 'target_address' => $this->ip,
-                'max_limit' =>  now()->startOfDay()->gt(\Carbon\Carbon::parse($this->expiryDate)) ? '1k/1k' : $this->maxLimit,
-                'status' => now()->startOfDay()->gt(\Carbon\Carbon::parse($this->expiryDate)) ? 'no' : 'yes',
-                'disabled' => now()->startOfDay()->gt(\Carbon\Carbon::parse($this->expiryDate)) ? 'no' : 'yes',
+                'max_limit' =>  now(env('APP_TIMEZONE', 'Africa/Nairobi'))->startOfDay()->gt(\Carbon\Carbon::parse($this->expiryDate)) ? '1k/1k' : $this->maxLimit,
+                'status' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->startOfDay()->gt(\Carbon\Carbon::parse($this->expiryDate)) ? 'no' : 'yes',
+                'disabled' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->startOfDay()->gt(\Carbon\Carbon::parse($this->expiryDate)) ? 'no' : 'yes',
                 'comment' => $this->comment,
             ];
             $routerStatus = Mikrotik::createStaticUser($connect, $userData);
@@ -88,7 +88,7 @@ class CreateStatic extends Form
                     'connection_type' => 'static',
                     'expiry_date' => $this->expiryDate,
                     'comment' => $this->comment,
-                    // 'status' => now()->startOfDay()->gt(\Carbon\Carbon::parse($this->expiryDate)) ? 'active' : 'inactive',
+                    // 'status' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->startOfDay()->gt(\Carbon\Carbon::parse($this->expiryDate)) ? 'active' : 'inactive',
                     'status' => 'active',
                     'location' => $this->location,
                     'mikrotik_id' => $this->routerId,
@@ -102,13 +102,13 @@ class CreateStatic extends Form
                         'is_parent' => true,
                     ]);
                 }
-                
+
                 $staticCustomer = StaticUser::create([
                     'customer_id' => $customer->id,
                     'mikrotik_name' => $this->username,
                     'target_address' => $this->ip,
                     'max_download_speed' => $this->maxLimit,
-                    'disabled' => now()->startOfDay()->gt(\Carbon\Carbon::parse($this->expiryDate)) ? 0 : 1,
+                    'disabled' => now(env('APP_TIMEZONE', 'Africa/Nairobi'))->startOfDay()->gt(\Carbon\Carbon::parse($this->expiryDate)) ? 0 : 1,
                     'comment' => $this->comment,
                 ]);
                 return true;

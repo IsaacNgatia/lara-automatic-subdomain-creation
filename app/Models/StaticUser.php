@@ -31,6 +31,40 @@ class StaticUser extends Model
     {
         return $this->belongsTo(Customer::class);
     }
+    public static function updateStaticMikrotikName(array $connect, array $data)
+    {
+        try {
+            $routerosApiService = app(RouterosApiService::class);
+            if (Mikrotik::checkRouterStatus(($connect))) {
+                $staticUser = $routerosApiService->comm(
+                    "/queue/simple/print",
+                    array(
+                        ".proplist" => ".id",
+                        "?name" => $data['old-name'],
+                    )
+                );
+
+                $routerosApiService->comm(
+                    "/queue/simple/set",
+                    array(
+                        ".id" => $staticUser[0][".id"],
+                        "name" => $data['new-name'],
+                        "target" => $data['target-address'],
+                        "max-limit" => $data['status'] == 'no' ? '1k/1k' : $data['max-limit'],
+                        "limit-at" =>  $data['status'] == 'no' ? '1k/1k' : $data['max-limit'],
+                        "comment" => $data['comment'],
+                        "disabled" =>  'no'
+                    )
+                );
+                return true;
+            } else {
+                return false;
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            dd($th->getMessage());
+        }
+    }
     public static function updateStaticUser(array $connect, array $data)
     {
         try {
@@ -43,7 +77,7 @@ class StaticUser extends Model
                         "?name" => $data['name'],
                     )
                 );
-                if ($data['nat']) {
+                if (isset($data['nat'])) {
                     $natRule = $routerosApiService->comm(
                         "/ip/firewall/nat/getall",
                         array(
@@ -62,7 +96,7 @@ class StaticUser extends Model
                     );
                 }
 
-                if ($data['use-queue-types']) {
+                if (isset($data['use-queue-types'])) {
                     $routerosApiService->comm(
                         "/queue/simple/set",
                         array(
@@ -117,10 +151,10 @@ class StaticUser extends Model
                             ".id" => $staticUser[0][".id"],
                             "name" => $data['name'],
                             "target" => $data['target-address'],
-                            "max-limit" => $data['max-limit'],
-                            "limit-at" => $data['max-limit'],
+                            "max-limit" => $data['status'] == 'no' ? '1k/1k' : $data['max-limit'],
+                            "limit-at" => $data['status'] == 'no' ? '1k/1k' : $data['max-limit'],
                             "comment" => $data['comment'],
-                            "disabled" => $data['status'] == 'yes' ? 'no' : 'yes'
+                            "disabled" =>  'no'
                         )
                     );
                 }
@@ -130,6 +164,7 @@ class StaticUser extends Model
             }
         } catch (\Throwable $th) {
             //throw $th;
+            dd($th->getMessage());
             return $th->getMessage();
         }
     }

@@ -1,5 +1,5 @@
  <ul class="list-none profile-timeline">
-     <li>
+     {{-- <li>
          <div>
              <span class="avatar avatar-sm bg-primary/10  !text-primary avatar-rounded profile-timeline-avatar">
                  E
@@ -160,5 +160,5 @@
                  </a>
              </p>
          </div>
-     </li>
+     </li> --}}
  </ul>

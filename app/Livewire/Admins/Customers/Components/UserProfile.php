@@ -3,7 +3,10 @@
 namespace App\Livewire\Admins\Customers\Components;
 
 use App\Models\Customer;
+use App\Models\Mikrotik;
+use App\Models\Sms;
 use App\Models\Transaction;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class UserProfile extends Component
@@ -12,8 +15,14 @@ class UserProfile extends Component
     public $user;
     public $transactionsCount;
     public $mikrotikName;
+    public $customerId;
+    public $mikrotikInfo;
+    public $routerIsOnline = false;
+    public $smsCount;
+
     public function mount($customerId)
     {
+        $this->customerId = $customerId;
         $this->customer = Customer::find($customerId);
         $this->mikrotikName = $this->customer->mikrotik->name;
         $referenceNumber = $this->customer->reference_number;
@@ -21,6 +30,7 @@ class UserProfile extends Component
             $query->where('reference_number', $referenceNumber)
                 ->orWhere('customer_id', $customerId);
         })->count();
+        $this->smsCount = Sms::where('customer_id', $customerId)->count();
         if ($this->customer['connection_type'] == 'pppoe') {
             $this->user = $this->customer->pppoeUser;
         } elseif ($this->customer['connection_type'] == 'static') {
@@ -60,6 +70,54 @@ class UserProfile extends Component
 
         // Return the original value if it is 1000 or less
         return $value;
+    }
+    public function downCustomer($customerId)
+    {
+        if ($this->customer->connection_type === 'static') {
+            $status =  Mikrotik::downStaticCustomer($customerId);
+        } elseif ($this->customer->connection_type === 'pppoe') {
+            $status =   Mikrotik::downPppoeCustomer($customerId);
+        } elseif ($this->customer->connection_type === ' rhsp') {
+            $status =  Mikrotik::downHotspotCustomer($customerId);
+        }
+        if ($status) {
+            $this->customer->status = 'inactive';
+        }
+        $this->dispatch('check-router-is-online');
+        return;
+    }
+    public function raiseCustomer($customerId)
+    {
+        if ($this->customer->connection_type === 'static') {
+            $status = Mikrotik::raiseStaticCustomer($customerId);
+        } elseif ($this->customer->connection_type === 'pppoe') {
+            $status = Mikrotik::raisePppoeCustomer($customerId);
+        } elseif ($this->customer->connection_type === ' rhsp') {
+            $status =  Mikrotik::raiseHotspotCustomer($customerId);
+        }
+        if ($status) {
+            $this->customer->status = 'active';
+        }
+        $this->dispatch('check-router-is-online');
+        return;
+    }
+    public function getInitials($name)
+    {
+        $name = explode(' ', $name);
+        $initials = '';
+        foreach ($name as $n) {
+            $initials .= strtoupper($n[0]);
+        }
+        return $initials;
+    }
+    #[On('check-router-is-online')]
+    public function getMikrotikInfo()
+    {
+        $info = Customer::getDetailedMikrotikInfo($this->customerId);
+        if ($info['success'] === true) {
+            $this->mikrotikInfo = $info['user'];
+            $this->routerIsOnline = true;
+        }
     }
     public function render()
     {

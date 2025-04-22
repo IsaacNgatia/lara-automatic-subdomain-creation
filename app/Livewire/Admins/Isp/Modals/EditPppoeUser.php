@@ -5,6 +5,7 @@ namespace App\Livewire\Admins\Isp\Modals;
 use App\Models\Customer;
 use App\Models\Mikrotik;
 use App\Models\PppoeUser;
+use Carbon\Carbon;
 use Livewire\Component;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Livewire\Attributes\On;
@@ -68,8 +69,9 @@ class EditPppoeUser extends Component
             $this->billingCycle = $separatedDuration['unit'];
             $this->billingCycleValue = $separatedDuration['value'];
             $this->bill = $customer->billing_amount;
-            $this->expiryDate = $customer->expiry_date;
-            $this->oldExpiryDate = $customer->expiry_date;
+
+            $this->expiryDate = Carbon::parse($customer->expiry_date)->format('Y-m-d\TH:i');
+            $this->oldExpiryDate = $this->expiryDate;
             $this->referenceNumber = $customer->reference_number;
 
             // Assign PPPoE user details
@@ -114,7 +116,7 @@ class EditPppoeUser extends Component
         $this->validate();
         $pppoeUser = PppoeUser::find($this->pppoeUserId);
         $customer = Customer::find($this->customerId);
-        $comment = $this->username . ' has been updated at ' . now(env('TIME_ZONE'))->format('d-m-Y H:i:s') . " by " . request()->ip();
+        $comment = $this->username . ' has been updated at ' . now(env('TIME_ZONE', 'Africa/Nairobi'))->format('d-m-Y H:i:s') . " by " . request()->ip();
         if (
             $this->expiryDate != $this->oldExpiryDate ||
             $this->status != ($customer->status == 'active' ? 'yes' : 'no') ||
@@ -302,9 +304,16 @@ class EditPppoeUser extends Component
         // Return true if the phone number is already used, false otherwise
         return $existingCount > 0;
     }
+    #[On('close-modal')]
     public function closeModal()
     {
         $this->dispatch('cancel-update-pppoe-user');
+    }
+    public function checkDateTimeStatus($datetime)
+    {
+        $date = Carbon::parse($datetime);
+
+        $this->status = $date->isPast() ? 'no' : 'yes';
     }
     private function getBillingCycle(string $billingCycle, int $billingCycleValue): string
     {

@@ -37,9 +37,10 @@
         x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
 
         <!-- Close (X) Button -->
-        <button x-on:click="$dispatch('close-modal')"
-            class="absolute top-2 right-2 text-gray-50 hover:text-gray-200 dark:text-gray-100 dark:hover:text-gray-300 !rounded-full hover:bg-red-500 z-[999] py-1 px-2">
-            X
+        <button @click="$dispatch('close-modal')"
+            class="absolute top-2 right-2 z-[999] py-1 px-2 !text-[1.5rem] !font-medium text-[#8c9097] dark:text-white/50 hover:text-defaulttextcolor">
+            <span class="sr-only">Close</span>
+            <i class="ri-close-line"></i>
         </button>
 
         {{ $slot }}

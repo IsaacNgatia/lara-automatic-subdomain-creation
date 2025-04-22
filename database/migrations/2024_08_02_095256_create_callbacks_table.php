@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('phone', length: 20)->nullable();
             $table->string('result_description');
             $table->enum('status', ['pending', 'completed', 'failed'])->default('pending')->nullable();
+            $table->boolean('query_transaction_status')->default(false)->nullable();
             $table->dateTime('trans_timestamp')->nullable();
             $table->timestamps();
         });

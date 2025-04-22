@@ -1,15 +1,15 @@
 <div class="box-body space-y-3">
     <div class="flex justify-between">
         <div class="download-data">
-            <button type="button" class="ti-btn btn-wave ti-btn-primary" id="download-csv">Download
+            <button type="button" class="ti-btn btn-wave ti-btn-primary" id="download-csv">
                 CSV</button>
-            <button type="button" class="ti-btn btn-wave ti-btn-primary" id="download-json">Download
+            <button type="button" class="ti-btn btn-wave ti-btn-primary" id="download-json">
                 JSON</button>
-            <button type="button" class="ti-btn btn-wave ti-btn-primary" id="download-xlsx">Download
+            <button type="button" class="ti-btn btn-wave ti-btn-primary" id="download-xlsx">
                 XLSX</button>
-            <button type="button" class="ti-btn btn-wave ti-btn-primary" id="download-pdf">Download
+            <button type="button" class="ti-btn btn-wave ti-btn-primary" id="download-pdf">
                 PDF</button>
-            <button type="button" class="ti-btn btn-wave ti-btn-primary" id="download-html">Download
+            <button type="button" class="ti-btn btn-wave ti-btn-primary" id="download-html">
                 HTML</button>
         </div>
         <div>

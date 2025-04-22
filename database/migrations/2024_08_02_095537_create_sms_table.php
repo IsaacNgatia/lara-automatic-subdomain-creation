@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->boolean('is_sent')->default(false);
             $table->string('recipient');
             $table->text('message');
-            $table->string('message_id');
+            $table->string('message_id')->nullable();
             $table->string('subject');
             $table->foreignId('customer_id')->nullable()->constrained('customers')->onDelete('set null');
             $table->timestamps();

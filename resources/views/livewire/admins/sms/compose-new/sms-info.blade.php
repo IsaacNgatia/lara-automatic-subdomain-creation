@@ -6,7 +6,7 @@
                      <div class="mx-auto">
                          <p class="mb-0 text-[#8c9097] dark:text-white/50">Credit Balance</p>
                          <div class="flex items-center">
-                             <span class="text-[1.25rem] font-semibold text-primary">KES
+                             <span class="text-[1.25rem] font-semibold text-primary">{{ current_currency() }}
                                  9,231</span>
                          </div>
                      </div>
